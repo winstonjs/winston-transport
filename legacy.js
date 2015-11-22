@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('util'),
-    TransportStream = require('./transport-stream')
+    TransportStream = require('./');
 
 var LegacyTransportStream = module.exports = function LegacyTransportStream(opts) {
   opts = opts || {};
