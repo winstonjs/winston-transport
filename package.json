@@ -1,0 +1,24 @@
+{
+  "name": "winston-transport",
+  "version": "1.0.0",
+  "description": "Base stream implementations for winston@3 and up. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "istanbul cover ./node_modules/.bin/_mocha test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winstonjs/winston-transport.git"
+  },
+  "keywords": [
+    "winston",
+    "transport",
+    "winston3"
+  ],
+  "author": "Charlie Robbins <charlie.robbins@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/winstonjs/winston-transport/issues"
+  },
+  "homepage": "https://github.com/winstonjs/winston-transport#readme"
+}
