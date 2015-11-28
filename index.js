@@ -58,7 +58,7 @@ TransportStream.prototype._write = function (info, enc, callback) {
   // conditionally write to our pipe targets as stream.
   //
   if (!this.level || this.levels[this.level] <= this.levels[info.level]) {
-    this.log(info);
+    return this.log(info, callback);
   }
 
   callback();
