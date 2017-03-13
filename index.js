@@ -8,6 +8,7 @@ var TransportStream = module.exports = function TransportStream(opts) {
   opts = opts || {};
   this.format = opts.format;
   this.level = opts.level;
+  this.handleExceptions = opts.handleExceptions;
   this.log = this.log || opts.log;
 
   var self = this;
@@ -53,13 +54,19 @@ util.inherits(TransportStream, stream.Writable);
  * Writes the info object to our transport instance.
  */
 TransportStream.prototype._write = function (info, enc, callback) {
+  if (info.exception && !this.handleExceptions) {
+    callback();
+    return true;
+  }
+
   //
   // Remark: This has to be handled in the base transport now because we cannot
   // conditionally write to our pipe targets as stream.
   //
-  if (!this.level || this.levels[this.level] <= this.levels[info.level]) {
+  if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
     return this.log(info, callback);
   }
 
   callback();
+  return true;
 };
