@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/winstonjs/winston-transport#readme",
   "devDependencies": {
+    "abstract-winston-transport": "*",
     "assume": "^1.4.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0"
