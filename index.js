@@ -40,6 +40,10 @@ var TransportStream = module.exports = function TransportStream(opts) {
       // a single transport may be shared by multiple Logger
       // instances.
       //
+      // Remark: depending on the use-case we may need to clean up
+      // this.levels and this.level.
+      //
+      this.parent = null;
       if (self.close) {
         self.close();
       }
@@ -55,8 +59,7 @@ util.inherits(TransportStream, stream.Writable);
  */
 TransportStream.prototype._write = function (info, enc, callback) {
   if (info.exception && !this.handleExceptions) {
-    callback();
-    return true;
+    return callback(null);
   }
 
   //
@@ -67,6 +70,5 @@ TransportStream.prototype._write = function (info, enc, callback) {
     return this.log(info, callback);
   }
 
-  callback();
-  return true;
+  return callback(null);
 };

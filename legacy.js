@@ -48,7 +48,7 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
     this.transport.log(info.level, info.message, info, function () {});
   }
 
-  callback();
+  callback(null);
 };
 
 /*
