@@ -4,7 +4,8 @@
   "version": "1.0.2",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover ./node_modules/.bin/_mocha test/*.test.js"
+    "test": "nyc mocha test/*.test.js",
+    "report": "nyc report --reporter=lcov"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "abstract-winston-transport": "*",
     "assume": "^1.4.1",
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "nyc": "^10.1.2"
   }
 }
