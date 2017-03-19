@@ -1,7 +1,7 @@
 'use strict';
 
-var util = require('util'),
-    TransportStream = require('./');
+const util = require('util');
+const TransportStream = require('./');
 
 /**
  * Constructor function for the LegacyTransportStream. This is an internal wrapper

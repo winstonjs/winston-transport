@@ -1,7 +1,7 @@
 'use strict';
 
-var stream = require('stream'),
-    util = require('util');
+const stream = require('stream');
+const util = require('util');
 
 /**
  * Constructor function for the TransportStream. This is the base prototype
