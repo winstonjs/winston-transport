@@ -32,7 +32,7 @@ const testLevels = testOrder.reduce(function (acc, level, i) {
 }, {});
 
 describe('TransportStream', function () {
-  it('should have the appropriate errors defined', function () {
+  it('should have the appropriate methods defined', function () {
     const transport = new TransportStream();
     assume(transport).instanceof(stream.Writable);
     assume(transport._write).is.a('function');

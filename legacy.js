@@ -12,6 +12,10 @@ const TransportStream = require('./');
  */
 var LegacyTransportStream = module.exports = function LegacyTransportStream(opts) {
   opts = opts || {};
+  if (!opts.transport || typeof opts.transport.log !== 'function') {
+    throw new Error('Invalid transport, must be an object with a log method.');
+  }
+
   TransportStream.call(this, opts);
 
   var self = this;
@@ -19,11 +23,10 @@ var LegacyTransportStream = module.exports = function LegacyTransportStream(opts
   this.level = opts.transport.level;
   this.handleExceptions = opts.transport.handleExceptions;
 
-  if (typeof opts.transport.log !== 'function') {
-    throw new Error('Invalid transport, must be an object with a log method.');
-  }
-
-  console.error('%s is a Legacy winston transport. Consider upgrading', opts.transport.name);
+  console.error([
+    `${opts.transport.name} is a legacy winston transport. Consider upgrading: `,
+    '- Upgrade docs: https://github.com/winstonjs/winston/tree/master/UPGRADE.md'
+  ].join('\n'));
 
   //
   // Properly bubble up errors from the transport to the LegacyTransportStream
