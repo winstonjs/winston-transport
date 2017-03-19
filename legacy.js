@@ -3,15 +3,21 @@
 var util = require('util'),
     TransportStream = require('./');
 
+/**
+ * Constructor function for the LegacyTransportStream. This is an internal wrapper
+ * `winston >= 3` uses to wrap older transports implementing log(level, message, meta).
+ *
+ * @param  {Object} opts Options for this TransportStream instance.
+ *   @param {Transpot} opts.transport winston@2 or older Transport to wrap.
+ */
 var LegacyTransportStream = module.exports = function LegacyTransportStream(opts) {
   opts = opts || {};
-  opts.objectMode = true;
-
   TransportStream.call(this, opts);
 
   var self = this;
   this.transport = opts.transport;
   this.level = opts.transport.level;
+  this.handleExceptions = opts.transport.handleExceptions;
 
   if (typeof opts.transport.log !== 'function') {
     throw new Error('Invalid transport, must be an object with a log method.');

@@ -3,6 +3,16 @@
 var stream = require('stream'),
     util = require('util');
 
+/**
+ * Constructor function for the TransportStream. This is the base prototype
+ * that all `winston >= 3` transports should inherit from.
+ *
+ * @param  {Object} opts Options for this TransportStream instance
+ *   @param {String} opts.level HIGHEST level according to RFC5424.
+ *   @param {Boolean} opts.handleExceptions If true, info with { exception: true } will be written.
+ *   @param {Function} opts.log Custom log function for simple Transport creation
+ *   @param {Function} opts.close Called on "unpipe" from parent
+ */
 var TransportStream = module.exports = function TransportStream(opts) {
   stream.Writable.call(this, { objectMode: true });
   opts = opts || {};
