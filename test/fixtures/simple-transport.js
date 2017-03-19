@@ -1,3 +1,5 @@
+'use strict';
+
 const TransportStream = require('../../');
 const util = require('util');
 

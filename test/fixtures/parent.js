@@ -1,3 +1,5 @@
+'use strict';
+
 const stream = require('stream');
 const util = require('util');
 

@@ -1,3 +1,5 @@
+'use strict';
+
 const assume = require('assume');
 const stream = require('stream');
 const TransportStream = require('../');
