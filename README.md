@@ -21,3 +21,13 @@ YourCustomTransport.prototype.log = function (info, callback) {
 };
 ```
 
+## Tests
+
+Tests are written with `mocha`, `nyc`, `assume`, and `abstract-winston-transport`. They can be run with `npm`:
+
+``` bash
+npm test
+```
+
+##### Author: [Charlie Robbins](https://github.com/indexzero)
+##### LICENSE: MIT
