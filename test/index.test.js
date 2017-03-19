@@ -2,6 +2,7 @@
 const assume = require('assume');
 const stream = require('stream');
 const TransportStream = require('../');
+const Parent = require('./fixtures/parent');
 const SimpleTransport = require('./fixtures/simple-transport');
 
 //
@@ -49,6 +50,30 @@ function inspectLoggedResults(actual, expected) {
   }
 }
 
+//
+// Order of Levels used in these tests.
+// Remark (indexzero): is abstracting this into a helper
+// useful in `abstract-winston-transport`?
+//
+const testOrder = [
+  'error',
+  'warn',
+  'dog',
+  'cat',
+  'info',
+  'verbose',
+  'silly',
+  'parrot'
+];
+
+//
+// Actual `testLevels` in the format expected by `winston`.
+//
+const testLevels = testOrder.reduce(function (acc, level, i) {
+  acc[level] = i;
+  return acc;
+}, {});
+
 describe('TransportStream', function () {
   it('should have the appropriate errors defined', function () {
     const transport = new TransportStream();
@@ -79,7 +104,7 @@ describe('TransportStream', function () {
     transport.write(info);
   });
 
-  describe('{ exception: true }', function () {
+  describe('when { exception: true } in info', function () {
     it('should not invoke log when { handleExceptions: false }', function (done) {
       const expected = [
         { exception: true, 'message': 'Test exception handling' },
@@ -118,26 +143,9 @@ describe('TransportStream', function () {
 
       expected.forEach(transport.write.bind(transport));
     });
-
   });
 
   describe('levels', function () {
-    const testOrder = [
-      'error',
-      'warn',
-      'dog',
-      'cat',
-      'info',
-      'verbose',
-      'silly',
-      'parrot'
-    ];
-
-    const testLevels = testOrder.reduce(function (acc, level, i) {
-      acc[level] = i;
-      return acc;
-    }, {});
-
     it('should log to any level when { level: undefined }', function (done) {
       const expected = testOrder.map(levelAndMessage);
       const transport = new TransportStream({
@@ -170,6 +178,101 @@ describe('TransportStream', function () {
   });
 
   describe('with parent', function () {
-    it('should define { level, levels } on "pipe"');
+    it('should define { level, levels } on "pipe"', function (done) {
+      var parent = new Parent({
+        level: 'info',
+        levels: testLevels
+      });
+
+      var transport = new TransportStream({
+        log: function () {}
+      });
+
+      parent.pipe(transport);
+      setImmediate(function () {
+        assume(transport.level).equals('info');
+        assume(transport.levels).equals(testLevels);
+        assume(transport.parent).equals(parent);
+        done();
+      });
+    });
+
+    it('should not overwrite existing { level } on "pipe"', function (done) {
+      var parent = new Parent({
+        level: 'info',
+        levels: testLevels
+      });
+
+      var transport = new TransportStream({
+        level: 'error',
+        log: function () {}
+      });
+
+      parent.pipe(transport);
+      setImmediate(function () {
+        assume(transport.level).equals('error');
+        assume(transport.levels).equals(testLevels);
+        assume(transport.parent).equals(parent);
+        done();
+      });
+    });
+
+    it('should unset parent on "unpipe"', function (done) {
+      var parent = new Parent({
+        level: 'info',
+        levels: testLevels
+      });
+
+      var transport = new TransportStream({
+        level: 'error',
+        log: function () {}
+      });
+
+      //
+      // Trigger "pipe" first so that transport.parent is set
+      //
+      parent.pipe(transport);
+      setImmediate(function () {
+        assume(transport.parent).equals(parent);
+
+        //
+        // Now verify that after "unpipe" it is set to "null"
+        //
+        parent.unpipe(transport);
+        setImmediate(function () {
+          assume(transport.parent).equals(null);
+          done();
+        });
+      });
+    });
+
+    it('should invoke a close method on "unpipe"', function (done) {
+      var parent = new Parent({
+        level: 'info',
+        levels: testLevels
+      });
+
+      var transport = new TransportStream({
+        log: function () {}
+      });
+
+      //
+      // Test will only successfully complete when `close`
+      // is invoked.
+      //
+      transport.close = function () {
+        assume(transport.parent).equals(null);
+        done();
+      };
+
+      //
+      // Trigger "pipe" first so that transport.parent is set
+      //
+      parent.pipe(transport);
+      setImmediate(function () {
+        assume(transport.parent).equals(parent);
+        parent.unpipe(transport);
+      });
+    });
   });
 });

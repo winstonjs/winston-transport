@@ -6,10 +6,15 @@ var stream = require('stream'),
 var TransportStream = module.exports = function TransportStream(opts) {
   stream.Writable.call(this, { objectMode: true });
   opts = opts || {};
+  //
+  // TODO (indexzero): What do we do with formats on TransportStream
+  // instances? Should we do the same dance as in `winston.Logger`?
+  //
   this.format = opts.format;
   this.level = opts.level;
   this.handleExceptions = opts.handleExceptions;
   this.log = this.log || opts.log;
+  this.close = this.close || opts.close;
 
   var self = this;
 
@@ -17,12 +22,14 @@ var TransportStream = module.exports = function TransportStream(opts) {
   // Get the levels from the source we are piped from.
   //
   this.once('pipe', function (logger) {
+    //
+    // Remark (indexzero): this bookkeeping can only support multiple
+    // Logger parents with the same `levels`. This comes into play in
+    // the `winston.Container` code in which `container.add` takes
+    // a fully realized set of options with pre-constructed TransportStreams.
+    //
     self.levels = logger.levels;
     self.level = self.level || logger.level;
-    //
-    // TODO: Improve bookkeeping here to support pipe and unpipe
-    // from multiple LogStream parents (e.g. Containers)
-    //
     self.parent = logger;
   });
 
@@ -31,18 +38,12 @@ var TransportStream = module.exports = function TransportStream(opts) {
   //
   this.once('unpipe', function (src) {
     //
-    // TODO: Improve bookkeeping here to support pipe and unpipe
-    // from multiple LogStream parents (e.g. Containers)
+    // Remark (indexzero): this bookkeeping can only support multiple
+    // Logger parents with the same `levels`. This comes into play in
+    // the `winston.Container` code in which `container.add` takes
+    // a fully realized set of options with pre-constructed TransportStreams.
     //
     if (src === self.parent) {
-      //
-      // Remark: this may not be the desired implementation since
-      // a single transport may be shared by multiple Logger
-      // instances.
-      //
-      // Remark: depending on the use-case we may need to clean up
-      // this.levels and this.level.
-      //
       this.parent = null;
       if (self.close) {
         self.close();
