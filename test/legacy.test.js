@@ -124,7 +124,27 @@ describe('LegacyTransportStream', function () {
       expected.forEach(transport.write.bind(transport));
     });
 
-    it('level should be ignored when { handleExceptions: true }');
+    it('{ level } should be ignored when { handleExceptions: true }', function () {
+      const expected = testOrder.map(levelAndMessage)
+        .map(function (info) {
+          info.exception = true;
+          return info;
+        });
+
+      const transport = new LegacyTransportStream({
+        transport: legacy,
+        level: 'info'
+      });
+
+      legacy.on('logged', logFor(testOrder.length, function (err, infos) {
+        assume(infos.length).equals(expected.length);
+        assume(infos).deep.equals(expected);
+        done();
+      }));
+
+      transport.levels = testLevels;
+      expected.forEach(transport.write.bind(transport));
+    });
   });
 
   describe('close()', function () {
