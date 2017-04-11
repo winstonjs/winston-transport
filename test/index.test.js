@@ -136,7 +136,7 @@ describe('TransportStream', function () {
   });
 
   describe('_writev(chunks, callback)', function () {
-    it('should be called when necessary in streams plumbing', function (done) {
+    it('invokes .log() for each of the valid chunks when necessary in streams plumbing', function (done) {
       const expected = infosFor({ count: 50, levels: testOrder });
       const transport = new TransportStream({
         log: logFor(50 * testOrder.length, function (err, infos) {
@@ -150,10 +150,36 @@ describe('TransportStream', function () {
       // Make the standard _write throw to ensure that _writev is called.
       //
       transport._write = function () {
-        throw new Error('This should never be called');
+        throw new Error('TransportStream.prototype._write should never be called.');
       };
 
       transport.cork();
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+    });
+
+    it('invokes .logv with all valid chunks when necessary in streams plumbing', function () {
+      const expected = infosFor({ count: 50, levels: testOrder });
+      const transport = new TransportStream({
+        level: 'info',
+        log: function () {
+          throw new Error('.log() should never be called');
+        },
+        logv: function (chunks, callback) {
+          assume(chunks.length).equals(250);
+          callback();
+        }
+      });
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = function () {
+        throw new Error('TransportStream.prototype._write should never be called.');
+      };
+
+      transport.cork();
+      transport.levels = testLevels;
       expected.forEach(transport.write.bind(transport));
       transport.uncork();
     });
