@@ -69,7 +69,7 @@ util.inherits(TransportStream, stream.Writable);
  * Writes the info object to our transport instance.
  */
 TransportStream.prototype._write = function (info, enc, callback) {
-  if (info.exception && !this.handleExceptions) {
+  if (info.exception === true && !this.handleExceptions) {
     return callback(null);
   }
 
@@ -82,4 +82,54 @@ TransportStream.prototype._write = function (info, enc, callback) {
   }
 
   return callback(null);
+};
+
+/*
+ * @private function _writev(chunks, callback)
+ * Writes the batch of info objects (i.e. "object chunks") to our transport instance
+ * after performing any necessary filtering.
+ */
+TransportStream.prototype._writev = function (chunks, callback) {
+  const infos = this._accept(chunks, this);
+  if (this.logv) {
+    return this.logv(infos, callback);
+  }
+
+  for (var i = 0; i < infos.length; i++) {
+    this.log(infos[i], this._nop);
+  }
+
+  return callback(null);
+};
+
+/**
+ * Predicate function that returns true if the specfied `info` should be passed
+ * down into the derived TransportStream's I/O via `.log(info, callback)`.
+ * @param   {Info} info winston@3 info description of the log message
+ * @returns {Boolean} Value indicating if the `info` should be accepted & logged.
+ */
+TransportStream.prototype._accept = function (info) {
+  //
+  // Immediately check the average case: log level filtering.
+  //
+  if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
+    //
+    // Ensure the info object is valid based on `{ exception }`:
+    // 1. { handleExceptions: true }: all `info` objects are valid
+    // 2. { exception: false }: accepted by all transports.
+    //
+    if (this.handleExceptions || info.exception !== true) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * _nop is short for "No operation"
+ * @return {Boolean} Intentionally false.
+ */
+TransportStream.prototype._nop = function () {
+  return void undefined;
 };

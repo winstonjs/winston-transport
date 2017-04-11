@@ -49,7 +49,7 @@ util.inherits(LegacyTransportStream, TransportStream);
  * Writes the info object to our transport instance.
  */
 LegacyTransportStream.prototype._write = function (info, enc, callback) {
-  if (info.exception && !this.handleExceptions) {
+  if (info.exception === true && !this.handleExceptions) {
     return callback(null);
   }
 
@@ -58,10 +58,24 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
   // conditionally write to our pipe targets as stream.
   //
   if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
-    this.transport.log(info.level, info.message, info, function () {});
+    this.transport.log(info.level, info.message, info, this._nop);
   }
 
   callback(null);
+};
+
+/*
+ * @private function _writev(chunks, callback)
+ * Writes the batch of info objects (i.e. "object chunks") to our transport instance
+ * after performing any necessary filtering.
+ */
+TransportStream.prototype._writev = function (chunks, callback) {
+  const infos = this._accept(chunks, this);
+  for (var i = 0; i < infos.length; i++) {
+    this.log(infos[i].level, infos[i].message, infos[i], this._nop);
+  }
+
+  return callback(null);
 };
 
 /*
