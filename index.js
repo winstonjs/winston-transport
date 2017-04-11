@@ -112,7 +112,7 @@ TransportStream.prototype._accept = function (info) {
   //
   // Immediately check the average case: log level filtering.
   //
-  if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info.level]) {
     //
     // Ensure the info object is valid based on `{ exception }`:
     // 1. { handleExceptions: true }: all `info` objects are valid
