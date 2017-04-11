@@ -67,10 +67,11 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
  * Writes the batch of info objects (i.e. "object chunks") to our transport instance
  * after performing any necessary filtering.
  */
-TransportStream.prototype._writev = function (chunks, callback) {
-  const infos = this._accept(chunks, this);
+LegacyTransportStream.prototype._writev = function (chunks, callback) {
+  const infos = chunks.filter(this._accept, this);
   for (var i = 0; i < infos.length; i++) {
-    this.log(infos[i].level, infos[i].message, infos[i], this._nop);
+    this.log(infos[i].chunk.level, infos[i].chunk.message, infos[i].chunk, this._nop);
+    infos[i].callback();
   }
 
   return callback(null);
