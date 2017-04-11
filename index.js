@@ -24,6 +24,7 @@ var TransportStream = module.exports = function TransportStream(opts) {
   this.level = opts.level;
   this.handleExceptions = opts.handleExceptions;
   this.log = this.log || opts.log;
+  this.logv = this.logv || opts.logv;
   this.close = this.close || opts.close;
 
   var self = this;

@@ -8,19 +8,25 @@ const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
 const { infosFor, logFor, levelAndMessage } = require('abstract-winston-transport/utils');
 
+//
+// Silence the deprecation notice for sanity in test output.
+// TODO: Test coverage for the deprecation notice because why not?
+//
+const deprecated = {
+  original: LegacyTransportStream.prototype._deprecated,
+  silence: function () {
+    LegacyTransportStream.prototype._deprecated = function () {};
+  },
+  restore: function () {
+    LegacyTransportStream.prototype._deprecated = this.original;
+  }
+};
+
 describe('LegacyTransportStream', function () {
   let legacy;
   let transport;
 
-  //
-  // Silence the deprecation notice for sanity in test output.
-  // TODO: Test coverage for the deprecation notice because why not?
-  //
-  const deprecated = LegacyTransportStream.prototype._deprecated;
-  before(function () {
-    LegacyTransportStream.prototype._deprecated = function () {};
-  });
-
+  before(deprecated.silence);
   beforeEach(function () {
     legacy = new LegacyTransport();
     transport = new LegacyTransportStream({ transport: legacy });
@@ -44,6 +50,20 @@ describe('LegacyTransportStream', function () {
       transport = new LegacyTransportStream();
       assume(transport).instanceof(stream.Writable);
     }).throws(/Invalid transport, must be an object with a log method./);
+  });
+
+  it('should display a deprecation notice', function (done) {
+    deprecated.restore();
+    const error = console.error;
+    console.error = function (msg) {
+      assume(msg).to.include('is a legacy winston transport. Consider upgrading');
+      setImmediate(done);
+    };
+
+    legacy = new LegacyTransport();
+    transport = new LegacyTransportStream({ transport: legacy });
+    console.error = error;
+    deprecated.silence();
   });
 
   it('sets __winstonError on the LegacyTransport instance', function () {
@@ -156,6 +176,29 @@ describe('LegacyTransportStream', function () {
     });
   });
 
+  describe('_writev(chunks, callback)', function () {
+    it('should be called when necessary in streams plumbing', function (done) {
+      const expected = infosFor({ count: 50, levels: testOrder });
+
+      legacy.on('logged', logFor(50 * testOrder.length, function (err, infos) {
+        assume(infos.length).equals(expected.length);
+        assume(infos).deep.equals(expected);
+        done();
+      }));
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = function () {
+        throw new Error('This should never be called');
+      };
+
+      transport.cork();
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+    });
+  });
+
   describe('close()', function () {
     it('removes __winstonError from the transport', function () {
       assume(legacy.__winstonError).is.a('function');
@@ -176,6 +219,6 @@ describe('LegacyTransportStream', function () {
   // Restore the deprecation notice after tests complete.
   //
   after(function () {
-    LegacyTransportStream.prototype._deprecated = deprecated;
+    deprecated.restore();
   });
 });

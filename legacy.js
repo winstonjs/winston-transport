@@ -70,7 +70,7 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
 LegacyTransportStream.prototype._writev = function (chunks, callback) {
   const infos = chunks.filter(this._accept, this);
   for (var i = 0; i < infos.length; i++) {
-    this.log(infos[i].chunk.level, infos[i].chunk.message, infos[i].chunk, this._nop);
+    this.transport.log(infos[i].chunk.level, infos[i].chunk.message, infos[i].chunk, this._nop);
     infos[i].callback();
   }
 
@@ -82,7 +82,7 @@ LegacyTransportStream.prototype._writev = function (chunks, callback) {
  */
 LegacyTransportStream.prototype._deprecated = function () {
   console.error([
-    `${opts.transport.name} is a legacy winston transport. Consider upgrading: `,
+    `${this.transport.name} is a legacy winston transport. Consider upgrading: `,
     '- Upgrade docs: https://github.com/winstonjs/winston/tree/master/UPGRADE.md'
   ].join('\n'));
 };
