@@ -6,30 +6,7 @@ const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
 const SimpleTransport = require('./fixtures/simple-transport');
 const { logFor, levelAndMessage } = require('abstract-winston-transport/utils');
-
-//
-// Order of Levels used in these tests.
-// Remark (indexzero): is abstracting this into a helper
-// useful in `abstract-winston-transport`?
-//
-const testOrder = [
-  'error',
-  'warn',
-  'dog',
-  'cat',
-  'info',
-  'verbose',
-  'silly',
-  'parrot'
-];
-
-//
-// Actual `testLevels` in the format expected by `winston`.
-//
-const testLevels = testOrder.reduce(function (acc, level, i) {
-  acc[level] = i;
-  return acc;
-}, {});
+const { testLevels, testOrder } = require('./fixtures');
 
 describe('TransportStream', function () {
   it('should have the appropriate methods defined', function () {
@@ -64,7 +41,7 @@ describe('TransportStream', function () {
   describe('when { exception: true } in info', function () {
     it('should not invoke log when { handleExceptions: false }', function (done) {
       const expected = [
-        { exception: true, 'message': 'Test exception handling' },
+        { exception: true, level: 'error', message: 'Test exception handling' },
         { level: 'test', message: 'Testing ... 1 2 3.' }
       ];
 
@@ -81,7 +58,7 @@ describe('TransportStream', function () {
     it('should invoke log when { handleExceptions: true }', function (done) {
       const actual = [];
       const expected = [
-        { exception: true, 'message': 'Test exception handling' },
+        { exception: true, level: 'error', message: 'Test exception handling' },
         { level: 'test', message: 'Testing ... 1 2 3.' }
       ];
 

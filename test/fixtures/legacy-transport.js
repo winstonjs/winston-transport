@@ -24,7 +24,7 @@ const LegacyTransport = module.exports = function (opts) {
   // we are piped to.
   //
   this.levels = opts.levels;
-  this.stream = opts.stream;
+  this.stream = opts.stream || { write: function () {} };
   this.streams = opts.streams;
 };
 

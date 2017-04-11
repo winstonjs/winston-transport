@@ -20,8 +20,8 @@ var LegacyTransportStream = module.exports = function LegacyTransportStream(opts
 
   var self = this;
   this.transport = opts.transport;
-  this.level = opts.transport.level;
-  this.handleExceptions = opts.transport.handleExceptions;
+  this.level = this.level || opts.transport.level;
+  this.handleExceptions = this.handleExceptions || opts.transport.handleExceptions;
 
   console.error([
     `${opts.transport.name} is a legacy winston transport. Consider upgrading: `,
@@ -49,6 +49,10 @@ util.inherits(LegacyTransportStream, TransportStream);
  * Writes the info object to our transport instance.
  */
 LegacyTransportStream.prototype._write = function (info, enc, callback) {
+  if (info.exception && !this.handleExceptions) {
+    return callback(null);
+  }
+
   //
   // Remark: This has to be handled in the base transport now because we cannot
   // conditionally write to our pipe targets as stream.
@@ -71,5 +75,6 @@ LegacyTransportStream.prototype.close = function () {
 
   if (this.transport.__winstonError) {
     this.transport.removeListener('error', this.transport.__winstonError);
+    this.transport.__winstonError = null;
   }
 };
