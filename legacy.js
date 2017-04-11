@@ -23,10 +23,8 @@ var LegacyTransportStream = module.exports = function LegacyTransportStream(opts
   this.level = this.level || opts.transport.level;
   this.handleExceptions = this.handleExceptions || opts.transport.handleExceptions;
 
-  console.error([
-    `${opts.transport.name} is a legacy winston transport. Consider upgrading: `,
-    '- Upgrade docs: https://github.com/winstonjs/winston/tree/master/UPGRADE.md'
-  ].join('\n'));
+  // Display our deprecation notice.
+  this._deprecated();
 
   //
   // Properly bubble up errors from the transport to the LegacyTransportStream
@@ -76,6 +74,16 @@ TransportStream.prototype._writev = function (chunks, callback) {
   }
 
   return callback(null);
+};
+
+/**
+ * Displays a deprecation notice. Defined as a function so it can be overriden in tests.
+ */
+LegacyTransportStream.prototype._deprecated = function () {
+  console.error([
+    `${opts.transport.name} is a legacy winston transport. Consider upgrading: `,
+    '- Upgrade docs: https://github.com/winstonjs/winston/tree/master/UPGRADE.md'
+  ].join('\n'));
 };
 
 /*

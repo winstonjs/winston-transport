@@ -12,6 +12,15 @@ describe('LegacyTransportStream', function () {
   let legacy;
   let transport;
 
+  //
+  // Silence the deprecation notice for sanity in test output.
+  // TODO: Test coverage for the deprecation notice because why not?
+  //
+  const deprecated = LegacyTransportStream.prototype._deprecated;
+  before(function () {
+    LegacyTransportStream.prototype._deprecated = function () {};
+  });
+
   beforeEach(function () {
     legacy = new LegacyTransport();
     transport = new LegacyTransportStream({ transport: legacy });
@@ -55,46 +64,7 @@ describe('LegacyTransportStream', function () {
     legacy.emit('error', err);
   });
 
-  describe('when { exception: true } in info', function () {
-    it('should not invoke log when { handleExceptions: false }', function (done) {
-      const expected = [
-        { exception: true, 'message': 'Test exception handling' },
-        { level: 'test', message: 'Testing ... 1 2 3.' }
-      ];
-
-      legacy.on('logged', function (info) {
-        assume(info.exception).equals(undefined);
-        done();
-      });
-
-      expected.forEach(transport.write.bind(transport));
-    });
-
-    it('should invoke log when { handleExceptions: true }', function (done) {
-      const actual = [];
-      const expected = [
-        { exception: true, level: 'error', 'message': 'Test exception handling' },
-        { level: 'test', message: 'Testing ... 1 2 3.' }
-      ];
-
-      transport = new LegacyTransportStream({
-        handleExceptions: true,
-        transport: legacy
-      });
-
-      legacy.on('logged', function (info) {
-        actual.push(info);
-        if (actual.length === expected.length) {
-          assume(actual).deep.equals(expected);
-          done();
-        }
-      });
-
-      expected.forEach(transport.write.bind(transport));
-    });
-  });
-
-  describe('levels', function () {
+  describe('_write(info, enc, callback)', function () {
     it('should log to any level when { level: undefined }', function (done) {
       const expected = testOrder.map(levelAndMessage);
 
@@ -145,6 +115,45 @@ describe('LegacyTransportStream', function () {
       transport.levels = testLevels;
       expected.forEach(transport.write.bind(transport));
     });
+
+    describe('when { exception: true } in info', function () {
+      it('should not invoke log when { handleExceptions: false }', function (done) {
+        const expected = [
+          { exception: true, 'message': 'Test exception handling' },
+          { level: 'test', message: 'Testing ... 1 2 3.' }
+        ];
+
+        legacy.on('logged', function (info) {
+          assume(info.exception).equals(undefined);
+          done();
+        });
+
+        expected.forEach(transport.write.bind(transport));
+      });
+
+      it('should invoke log when { handleExceptions: true }', function (done) {
+        const actual = [];
+        const expected = [
+          { exception: true, level: 'error', 'message': 'Test exception handling' },
+          { level: 'test', message: 'Testing ... 1 2 3.' }
+        ];
+
+        transport = new LegacyTransportStream({
+          handleExceptions: true,
+          transport: legacy
+        });
+
+        legacy.on('logged', function (info) {
+          actual.push(info);
+          if (actual.length === expected.length) {
+            assume(actual).deep.equals(expected);
+            done();
+          }
+        });
+
+        expected.forEach(transport.write.bind(transport));
+      });
+    });
   });
 
   describe('close()', function () {
@@ -161,5 +170,12 @@ describe('LegacyTransportStream', function () {
       legacy.on('closed:custom', done());
       transport.close();
     });
+  });
+
+  //
+  // Restore the deprecation notice after tests complete.
+  //
+  after(function () {
+    LegacyTransportStream.prototype._deprecated = deprecated;
   });
 });

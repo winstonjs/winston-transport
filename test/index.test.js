@@ -38,48 +38,7 @@ describe('TransportStream', function () {
     transport.write(info);
   });
 
-  describe('when { exception: true } in info', function () {
-    it('should not invoke log when { handleExceptions: false }', function (done) {
-      const expected = [
-        { exception: true, level: 'error', message: 'Test exception handling' },
-        { level: 'test', message: 'Testing ... 1 2 3.' }
-      ];
-
-      const transport = new TransportStream({
-        log: function (info) {
-          assume(info.exception).equals(undefined);
-          done();
-        }
-      });
-
-      expected.forEach(transport.write.bind(transport));
-    });
-
-    it('should invoke log when { handleExceptions: true }', function (done) {
-      const actual = [];
-      const expected = [
-        { exception: true, level: 'error', message: 'Test exception handling' },
-        { level: 'test', message: 'Testing ... 1 2 3.' }
-      ];
-
-      const transport = new TransportStream({
-        handleExceptions: true,
-        log: function (info, next) {
-          actual.push(info);
-          if (actual.length === expected.length) {
-            assume(actual).deep.equals(expected);
-            done();
-          }
-
-          next();
-        }
-      });
-
-      expected.forEach(transport.write.bind(transport));
-    });
-  });
-
-  describe('levels', function () {
+  describe('_write(info, enc, callback)', function () {
     it('should log to any level when { level: undefined }', function (done) {
       const expected = testOrder.map(levelAndMessage);
       const transport = new TransportStream({
@@ -127,9 +86,50 @@ describe('TransportStream', function () {
       transport.levels = testLevels;
       expected.forEach(transport.write.bind(transport));
     });
+
+    describe('when { exception: true } in info', function () {
+      it('should not invoke log when { handleExceptions: false }', function (done) {
+        const expected = [
+          { exception: true, level: 'error', message: 'Test exception handling' },
+          { level: 'test', message: 'Testing ... 1 2 3.' }
+        ];
+
+        const transport = new TransportStream({
+          log: function (info) {
+            assume(info.exception).equals(undefined);
+            done();
+          }
+        });
+
+        expected.forEach(transport.write.bind(transport));
+      });
+
+      it('should invoke log when { handleExceptions: true }', function (done) {
+        const actual = [];
+        const expected = [
+          { exception: true, level: 'error', message: 'Test exception handling' },
+          { level: 'test', message: 'Testing ... 1 2 3.' }
+        ];
+
+        const transport = new TransportStream({
+          handleExceptions: true,
+          log: function (info, next) {
+            actual.push(info);
+            if (actual.length === expected.length) {
+              assume(actual).deep.equals(expected);
+              done();
+            }
+
+            next();
+          }
+        });
+
+        expected.forEach(transport.write.bind(transport));
+      });
+    });
   });
 
-  describe('with parent', function () {
+  describe('parent (i.e. "logger") ["pipe", "unpipe"]', function () {
     it('should define { level, levels } on "pipe"', function (done) {
       var parent = new Parent({
         level: 'info',
@@ -225,6 +225,65 @@ describe('TransportStream', function () {
         assume(transport.parent).equals(parent);
         parent.unpipe(transport);
       });
+    });
+  });
+
+  describe('_accept(info)', function () {
+    it('should filter only log messages BELOW the level priority', function () {
+      const expected = testOrder.map(levelAndMessage);
+      const transport = new TransportStream({ level: 'info' });
+      transport.levels = testLevels;
+
+      const filtered = expected.filter(transport._accept, transport)
+        .map(function (info) { return info.level });
+
+      assume(filtered).deep.equals([
+        'error',
+        'warn',
+        'dog',
+        'cat',
+        'info'
+      ]);
+    });
+
+    it('should filter out { exception: true } when { handleExceptions: false }', function () {
+      const expected = testOrder.map(levelAndMessage)
+        .map(function (info) {
+          info.exception = true;
+          return info;
+        });
+
+      const transport = new TransportStream({
+        handleExceptions: false,
+        level: 'info'
+      });
+
+      transport.levels = testLevels;
+
+      const filtered = expected.filter(transport._accept, transport)
+        .map(function (info) { return info.level });
+
+      assume(filtered).deep.equals([]);
+    });
+
+    it('should include ALL { exception: true } when { handleExceptions: true }', function () {
+      const expected = testOrder.map(levelAndMessage)
+        .map(function (info) {
+          info.exception = true;
+          return info;
+        });
+
+      const transport = new TransportStream({
+        handleExceptions: true,
+        level: 'info'
+      });
+
+      transport.levels = testLevels;
+
+      const filtered = expected.filter(transport._accept, transport)
+        .map(function (info) { return info.level });
+
+      assume(filtered).deep.equals(testOrder);
     });
   });
 });
