@@ -90,25 +90,27 @@ TransportStream.prototype._write = function (info, enc, callback) {
  * after performing any necessary filtering.
  */
 TransportStream.prototype._writev = function (chunks, callback) {
-  const infos = this._accept(chunks, this);
+  const infos = chunks.filter(this._accept, this);
   if (this.logv) {
     return this.logv(infos, callback);
   }
 
   for (var i = 0; i < infos.length; i++) {
-    this.log(infos[i], this._nop);
+    this.log(infos[i].chunk, infos[i].callback);
   }
 
   return callback(null);
 };
 
 /**
- * Predicate function that returns true if the specfied `info` should be passed
- * down into the derived TransportStream's I/O via `.log(info, callback)`.
- * @param   {Info} info winston@3 info description of the log message
- * @returns {Boolean} Value indicating if the `info` should be accepted & logged.
+ * Predicate function that returns true if the specfied `info` on the WriteReq, `write`, should
+ * be passed down into the derived TransportStream's I/O via `.log(info, callback)`.
+ * @param   {WriteReq} write winston@3 Node.js WriteReq for the `info` object representing the log message.
+ * @returns {Boolean} Value indicating if the `write` should be accepted & logged.
  */
-TransportStream.prototype._accept = function (info) {
+TransportStream.prototype._accept = function (write) {
+  const info = write.chunk;
+
   //
   // Immediately check the average case: log level filtering.
   //

@@ -6,7 +6,7 @@ const LegacyTransportStream = require('../legacy');
 const Parent = require('./fixtures/parent');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
-const { logFor, levelAndMessage } = require('abstract-winston-transport/utils');
+const { infosFor, logFor, levelAndMessage } = require('abstract-winston-transport/utils');
 
 describe('LegacyTransportStream', function () {
   let legacy;

@@ -5,8 +5,14 @@ const stream = require('stream');
 const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
 const SimpleTransport = require('./fixtures/simple-transport');
-const { logFor, levelAndMessage } = require('abstract-winston-transport/utils');
 const { testLevels, testOrder } = require('./fixtures');
+const {
+  infosFor,
+  logFor,
+  levelAndMessage,
+  toException,
+  toWriteReq
+} = require('abstract-winston-transport/utils');
 
 describe('TransportStream', function () {
   it('should have the appropriate methods defined', function () {
@@ -129,6 +135,30 @@ describe('TransportStream', function () {
     });
   });
 
+  describe('_writev(chunks, callback)', function () {
+    it('should be called when necessary in streams plumbing', function (done) {
+      const expected = infosFor({ count: 50, levels: testOrder });
+      const transport = new TransportStream({
+        log: logFor(50 * testOrder.length, function (err, infos) {
+          assume(infos.length).equals(expected.length);
+          assume(infos).deep.equals(expected);
+          done();
+        })
+      });
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = function () {
+        throw new Error('This should never be called');
+      };
+
+      transport.cork();
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+    });
+  });
+
   describe('parent (i.e. "logger") ["pipe", "unpipe"]', function () {
     it('should define { level, levels } on "pipe"', function (done) {
       var parent = new Parent({
@@ -230,12 +260,15 @@ describe('TransportStream', function () {
 
   describe('_accept(info)', function () {
     it('should filter only log messages BELOW the level priority', function () {
-      const expected = testOrder.map(levelAndMessage);
+      const expected = testOrder
+        .map(levelAndMessage)
+        .map(toWriteReq);
+
       const transport = new TransportStream({ level: 'info' });
       transport.levels = testLevels;
 
       const filtered = expected.filter(transport._accept, transport)
-        .map(function (info) { return info.level });
+        .map(function (write) { return write.chunk.level });
 
       assume(filtered).deep.equals([
         'error',
@@ -247,11 +280,9 @@ describe('TransportStream', function () {
     });
 
     it('should filter out { exception: true } when { handleExceptions: false }', function () {
-      const expected = testOrder.map(levelAndMessage)
-        .map(function (info) {
-          info.exception = true;
-          return info;
-        });
+      const expected = testOrder
+        .map(toException)
+        .map(toWriteReq);
 
       const transport = new TransportStream({
         handleExceptions: false,
@@ -267,11 +298,9 @@ describe('TransportStream', function () {
     });
 
     it('should include ALL { exception: true } when { handleExceptions: true }', function () {
-      const expected = testOrder.map(levelAndMessage)
-        .map(function (info) {
-          info.exception = true;
-          return info;
-        });
+      const expected = testOrder
+        .map(toException)
+        .map(toWriteReq);
 
       const transport = new TransportStream({
         handleExceptions: true,
@@ -281,7 +310,7 @@ describe('TransportStream', function () {
       transport.levels = testLevels;
 
       const filtered = expected.filter(transport._accept, transport)
-        .map(function (info) { return info.level });
+        .map(function (write) { return write.chunk.level });
 
       assume(filtered).deep.equals(testOrder);
     });
