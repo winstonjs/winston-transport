@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 2.1.0 (2017/09/27)
+
+- If a format is defined use it to mutate the info.
+
 ### 2.0.0 (2017/04/11)
 
 - [#2] Final semantics for `winston-transport` base implementations:
