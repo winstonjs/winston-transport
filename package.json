@@ -1,7 +1,7 @@
 {
   "name": "winston-transport",
   "description": "Base stream implementations for winston@3 and up.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "main": "index.js",
   "scripts": {
     "test": "nyc mocha test/*.test.js",

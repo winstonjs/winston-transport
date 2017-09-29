@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 2.1.1 (2017/09/29)
+
+- Properly interact with the `{ format }`, if provided.
+
 ### 2.1.0 (2017/09/27)
 
 - If a format is defined use it to mutate the info.
