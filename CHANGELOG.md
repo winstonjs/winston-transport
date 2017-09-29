@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 3.0.0 (2017/09/29)
+
+- Use `Symbol.for('level')` to lookup immutable `level` on `info` objects.
+
 ### 2.1.1 (2017/09/29)
 
 - Properly interact with the `{ format }`, if provided.
