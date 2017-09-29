@@ -2,6 +2,7 @@
 
 const util = require('util');
 const TransportStream = require('./');
+const LEVEL = Symbol.for('level');
 
 /**
  * Constructor function for the LegacyTransportStream. This is an internal wrapper
@@ -55,8 +56,8 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
   // Remark: This has to be handled in the base transport now because we cannot
   // conditionally write to our pipe targets as stream.
   //
-  if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
-    this.transport.log(info.level, info.message, info, this._nop);
+  if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
+    this.transport.log(info[LEVEL], info.message, info, this._nop);
   }
 
   callback(null);
@@ -70,7 +71,7 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
 LegacyTransportStream.prototype._writev = function (chunks, callback) {
   const infos = chunks.filter(this._accept, this);
   for (var i = 0; i < infos.length; i++) {
-    this.transport.log(infos[i].chunk.level, infos[i].chunk.message, infos[i].chunk, this._nop);
+    this.transport.log(infos[i].chunk[LEVEL], infos[i].chunk.message, infos[i].chunk, this._nop);
     infos[i].callback();
   }
 

@@ -7,6 +7,7 @@ const Parent = require('./fixtures/parent');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
 const { infosFor, logFor, levelAndMessage } = require('abstract-winston-transport/utils');
+const LEVEL = Symbol.for('level');
 
 //
 // Silence the deprecation notice for sanity in test output.
@@ -140,7 +141,7 @@ describe('LegacyTransportStream', function () {
       it('should not invoke log when { handleExceptions: false }', function (done) {
         const expected = [
           { exception: true, 'message': 'Test exception handling' },
-          { level: 'test', message: 'Testing ... 1 2 3.' }
+          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
         ];
 
         legacy.on('logged', function (info) {
@@ -154,8 +155,8 @@ describe('LegacyTransportStream', function () {
       it('should invoke log when { handleExceptions: true }', function (done) {
         const actual = [];
         const expected = [
-          { exception: true, level: 'error', 'message': 'Test exception handling' },
-          { level: 'test', message: 'Testing ... 1 2 3.' }
+          { exception: true, [LEVEL]: 'error', level: 'error', message: 'Test exception handling' },
+          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
         ];
 
         transport = new LegacyTransportStream({

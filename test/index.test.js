@@ -14,6 +14,7 @@ const {
   toException,
   toWriteReq
 } = require('abstract-winston-transport/utils');
+const LEVEL = Symbol.for('level');
 
 describe('TransportStream', function () {
   it('should have the appropriate methods defined', function () {
@@ -31,6 +32,7 @@ describe('TransportStream', function () {
 
   it('should invoke a custom log function on _write', function (done) {
     const info = {
+      [LEVEL]: 'test',
       level: 'test',
       message: 'Testing ... 1 2 3.'
     };
@@ -97,8 +99,8 @@ describe('TransportStream', function () {
     describe('when { exception: true } in info', function () {
       it('should not invoke log when { handleExceptions: false }', function (done) {
         const expected = [
-          { exception: true, level: 'error', message: 'Test exception handling' },
-          { level: 'test', message: 'Testing ... 1 2 3.' }
+          { exception: true, [LEVEL]: 'error', level: 'error', message: 'Test exception handling' },
+          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
         ];
 
         const transport = new TransportStream({
@@ -114,8 +116,8 @@ describe('TransportStream', function () {
       it('should invoke log when { handleExceptions: true }', function (done) {
         const actual = [];
         const expected = [
-          { exception: true, level: 'error', message: 'Test exception handling' },
-          { level: 'test', message: 'Testing ... 1 2 3.' }
+          { exception: true, [LEVEL]: 'error', level: 'error', message: 'Test exception handling' },
+          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
         ];
 
         const transport = new TransportStream({
@@ -345,7 +347,7 @@ describe('TransportStream', function () {
 
   describe('{ format }', function () {
     it('logs the output of the provided format', function (done) {
-      const expected = { level: 'info', message: 'there will be json' };
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
       const transport = new TransportStream({
         format: format.json(),
         log: function (info, next) {
@@ -361,7 +363,7 @@ describe('TransportStream', function () {
     });
 
     it('treats the original object immutable', function (done) {
-      const expected = { level: 'info', message: 'there will be json' };
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
       const transport = new TransportStream({
         format: format.json(),
         log: function (info, next) {
