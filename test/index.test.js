@@ -1,6 +1,7 @@
 'use strict';
 
 const assume = require('assume');
+const { format } = require('logform');
 const stream = require('stream');
 const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
@@ -339,6 +340,37 @@ describe('TransportStream', function () {
         .map(function (write) { return write.chunk.level });
 
       assume(filtered).deep.equals(testOrder);
+    });
+  });
+
+  describe('{ format }', function () {
+    it('logs the output of the provided format', function (done) {
+      const expected = { level: 'info', message: 'there will be json' };
+      const transport = new TransportStream({
+        format: format.json(),
+        log: function (info, next) {
+          assume(info.raw).equals(
+            JSON.stringify(expected)
+          );
+
+          done();
+        }
+      });
+
+      transport.write(expected);
+    });
+
+    it('treats the original object immutable', function (done) {
+      const expected = { level: 'info', message: 'there will be json' };
+      const transport = new TransportStream({
+        format: format.json(),
+        log: function (info, next) {
+          assume(info).not.equals(expected);
+          done();
+        }
+      });
+
+      transport.write(expected);
     });
   });
 });
