@@ -2,6 +2,7 @@
 
 const stream = require('stream');
 const util = require('util');
+const LEVEL = Symbol.for('level');
 
 /**
  * Constructor function for the TransportStream. This is the base prototype
@@ -78,7 +79,7 @@ TransportStream.prototype._write = function (info, enc, callback) {
   // Remark: This has to be handled in the base transport now because we cannot
   // conditionally write to our pipe targets as stream.
   //
-  if (!this.level || this.levels[this.level] >= this.levels[info.level]) {
+  if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
     if (this.format) {
       return this.log(
         this.format.transform(Object.assign({}, info), this.format.options),
@@ -122,7 +123,7 @@ TransportStream.prototype._accept = function (write) {
   //
   // Immediately check the average case: log level filtering.
   //
-  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info.level]) {
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
     //
     // Ensure the info object is valid based on `{ exception }`:
     // 1. { handleExceptions: true }: all `info` objects are valid
