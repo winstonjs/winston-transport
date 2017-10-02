@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 3.0.1 (2017/10/01)
+
+- [#4] Use ES6-class for defining Transport in `README.md`.
+- [#4] Do not overwrite prototypal methods unless they are provided in the options.
+
 ### 3.0.0 (2017/09/29)
 
 - Use `Symbol.for('level')` to lookup immutable `level` on `info` objects.
