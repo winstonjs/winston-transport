@@ -1,6 +1,7 @@
 # winston-transport
 
-The base `TransportStream` implementation for `winston >= 3`. Use these to write ecosystem Transports for `winston`.
+The base `TransportStream` implementation for `winston >= 3`. Use these to
+write ecosystem Transports for `winston`.
 
 ## Usage
 
@@ -8,22 +9,32 @@ The base `TransportStream` implementation for `winston >= 3`. Use these to write
 const Transport = require('winston-transport');
 const util = require('util');
 
-const YourCustomTransport = module.exports = function YourCustomTransport(opts) {
-  // Consume any custom options here. e.g.:
-  // - Connection information for databases
-  // - Authentication information for APIs (e.g. loggly, papertrail, logentries, etc.)
-};
+module.exports = class YourCustomTransport extends Transport {
+  constructor(opts) {
+    super(opts);
+    //
+    // Consume any custom options here. e.g.:
+    // - Connection information for databases
+    // - Authentication information for APIs (e.g. loggly, papertrail,
+    //   logentries, etc.).
+    //
+  }
 
-YourCustomTransport.prototype.log = function (info, callback) {
-  // Perform the writing to the remote service
-  this.emit('logged');
-  callback();
-};
+  log(info, callback) {
+    setImmediate(function () {
+      this.emit('logged', info);
+    });
+
+    // Perform the writing to the remote service
+    callback();
+  }
+}
 ```
 
 ## Tests
 
-Tests are written with `mocha`, `nyc`, `assume`, and `abstract-winston-transport`. They can be run with `npm`:
+Tests are written with `mocha`, `nyc`, `assume`, and 
+`abstract-winston-transport`. They can be run with `npm`:
 
 ``` bash
 npm test
