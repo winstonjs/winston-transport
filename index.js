@@ -17,16 +17,14 @@ const LEVEL = Symbol.for('level');
 var TransportStream = module.exports = function TransportStream(opts) {
   stream.Writable.call(this, { objectMode: true });
   opts = opts || {};
-  //
-  // TODO (indexzero): What do we do with formats on TransportStream
-  // instances? Should we do the same dance as in `winston.Logger`?
-  //
+
   this.format = opts.format;
   this.level = opts.level;
   this.handleExceptions = opts.handleExceptions;
-  this.log = this.log || opts.log;
-  this.logv = this.logv || opts.logv;
-  this.close = this.close || opts.close;
+
+  if (opts.log) this.log = opts.log;
+  if (opts.logv) this.logv = opts.logv;
+  if (opts.close) this.close = opts.close;
 
   var self = this;
 
