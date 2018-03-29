@@ -25,9 +25,10 @@
   "devDependencies": {
     "abstract-winston-transport": ">= 0.3.0",
     "assume": "^1.4.1",
-    "logform": "^1.1.0",
+    "logform": "^1.4.0",
     "mocha": "^3.2.0",
     "nyc": "^10.1.2",
-    "winston-compat": "0.0.1"
+    "winston-compat": "0.1.0",
+    "@types/node": "^9.6.1"
   }
 }
