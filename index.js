@@ -21,6 +21,7 @@ var TransportStream = module.exports = function TransportStream(opts) {
   this.format = opts.format;
   this.level = opts.level;
   this.handleExceptions = opts.handleExceptions;
+  this.silent = opts.silent;
 
   if (opts.log) this.log = opts.log;
   if (opts.logv) this.logv = opts.logv;
@@ -69,7 +70,8 @@ util.inherits(TransportStream, stream.Writable);
  * Writes the info object to our transport instance.
  */
 TransportStream.prototype._write = function (info, enc, callback) {
-  if (info.exception === true && !this.handleExceptions) {
+  if ((info.exception === true && !this.handleExceptions) ||
+      this.silent) {
     return callback(null);
   }
 
@@ -121,7 +123,7 @@ TransportStream.prototype._accept = function (write) {
   //
   // Immediately check the average case: log level filtering.
   //
-  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]] || this.silent) {
     //
     // Ensure the info object is valid based on `{ exception }`:
     // 1. { handleExceptions: true }: all `info` objects are valid
