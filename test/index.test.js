@@ -14,7 +14,9 @@ const {
   toException,
   toWriteReq
 } = require('abstract-winston-transport/utils');
+
 const LEVEL = Symbol.for('level');
+const MESSAGE = Symbol.for('message');
 
 describe('TransportStream', function () {
   it('should have the appropriate methods defined', function () {
@@ -351,7 +353,7 @@ describe('TransportStream', function () {
       const transport = new TransportStream({
         format: format.json(),
         log: function (info, next) {
-          assume(info.raw).equals(
+          assume(info[MESSAGE]).equals(
             JSON.stringify(expected)
           );
 
@@ -373,6 +375,41 @@ describe('TransportStream', function () {
       });
 
       transport.write(expected);
+    });
+  });
+
+  describe('{ silent }', function () {
+    const silentTransport = new TransportStream({
+      silent: true,
+      format: format.json(),
+      log: function (info, next) {
+        assume(false).true('.log() was called improperly');
+        done();
+      }
+    });
+
+    it('{ silent: true } ._write() never calls `.log`', function (done) {
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+
+      silentTransport.write(expected);
+      setImmediate(() => done());
+    });
+
+    it('{ silent: true } ._writev() never calls `.log`', function (done) {
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+
+      silentTransport.cork();
+      for (var i = 0; i < 15; i++) {
+        silentTransport.write(expected);
+      }
+
+      silentTransport.uncork();
+      setImmediate(() => done());
+    });
+
+    it('{ silent: true } ensures ._accept(write) always returns false', function () {
+      const accepted = silentTransport._accept({ chunk: {} });
+      assume(accepted).false();
     });
   });
 });

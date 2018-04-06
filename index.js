@@ -70,8 +70,7 @@ util.inherits(TransportStream, stream.Writable);
  * Writes the info object to our transport instance.
  */
 TransportStream.prototype._write = function (info, enc, callback) {
-  if ((info.exception === true && !this.handleExceptions) ||
-      this.silent) {
+  if (this.silent || (info.exception === true && !this.handleExceptions)) {
     return callback(null);
   }
 
@@ -100,6 +99,10 @@ TransportStream.prototype._write = function (info, enc, callback) {
  */
 TransportStream.prototype._writev = function (chunks, callback) {
   const infos = chunks.filter(this._accept, this);
+  if (!infos.length) {
+    return callback(null);
+  }
+
   if (this.logv) {
     return this.logv(infos, callback);
   }
@@ -119,11 +122,14 @@ TransportStream.prototype._writev = function (chunks, callback) {
  */
 TransportStream.prototype._accept = function (write) {
   const info = write.chunk;
+  if (this.silent) {
+    return false;
+  }
 
   //
   // Immediately check the average case: log level filtering.
   //
-  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]] || this.silent) {
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
     //
     // Ensure the info object is valid based on `{ exception }`:
     // 1. { handleExceptions: true }: all `info` objects are valid
