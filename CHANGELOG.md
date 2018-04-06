@@ -1,5 +1,12 @@
 # CHANGELOG
 
+### 3.1.0 (2018/04/06)
+
+- [#10] Add `silent` option to `TransportStream`. Still needs to be implemented
+  for `LegacyTransportStream`.
+- Bump `mocha` to `^5.0.5`.
+- Bump `nyc` to `^11.6.0`.
+
 ### 3.0.1 (2017/10/01)
 
 - [#4] Use ES6-class for defining Transport in `README.md`.
