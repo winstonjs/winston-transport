@@ -9,9 +9,14 @@ write ecosystem Transports for `winston`.
 const Transport = require('winston-transport');
 const util = require('util');
 
-module.exports = class YourCustomTransport extends Transport {
+//
+// Inherit from `winston-transport` so you can take advantage
+// of the base functionality and `.exceptions.handle()`.
+//
+module.exports = class CustomTransport extends Transport {
   constructor(opts) {
     super(opts);
+
     //
     // Consume any custom options here. e.g.:
     // - Connection information for databases
@@ -21,14 +26,15 @@ module.exports = class YourCustomTransport extends Transport {
   }
 
   log(info, callback) {
-    setImmediate(function () {
+    setImmediate(() => {
       this.emit('logged', info);
     });
 
     // Perform the writing to the remote service
+
     callback();
   }
-}
+};
 ```
 
 ## Tests
