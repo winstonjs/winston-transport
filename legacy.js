@@ -84,7 +84,7 @@ LegacyTransportStream.prototype._writev = function (chunks, callback) {
 LegacyTransportStream.prototype._deprecated = function () {
   console.error([
     `${this.transport.name} is a legacy winston transport. Consider upgrading: `,
-    '- Upgrade docs: https://github.com/winstonjs/winston/tree/master/UPGRADE.md'
+    '- Upgrade docs: https://github.com/winstonjs/winston/blob/master/UPGRADE-3.0.md'
   ].join('\n'));
 };
 
