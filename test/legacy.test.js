@@ -2,6 +2,7 @@
 
 const assume = require('assume');
 const stream = require('stream');
+const { format } = require('logform');
 const LegacyTransportStream = require('../legacy');
 const Parent = require('./fixtures/parent');
 const LegacyTransport = require('./fixtures/legacy-transport');
@@ -215,6 +216,44 @@ describe('LegacyTransportStream', function () {
       transport.close();
     });
   });
+
+  describe('{ silent }', function () {
+    it('{ silent: true } ._write() never calls `.log`', function (done) {
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+
+      legacy.once('logged', function (info) {
+        assume(true).false('"logged" event emitted unexpectedly');
+      });
+
+      transport.silent = true;
+      transport.write(expected);
+      setImmediate(() => done());
+    });
+
+    it('{ silent: true } ._writev() never calls `.log`', function (done) {
+      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+
+      legacy.once('logged', function (info) {
+        assume(true).false('"logged" event emitted unexpectedly');
+      });
+
+      transport.cork();
+      for (var i = 0; i < 15; i++) {
+        transport.write(expected);
+      }
+
+      transport.silent = true;
+      transport.uncork();
+      setImmediate(() => done());
+    });
+
+    it('{ silent: true } ensures ._accept(write) always returns false', function () {
+      transport.silent = true;
+      const accepted = transport._accept({ chunk: {} });
+      assume(accepted).false();
+    });
+  });
+
 
   //
   // Restore the deprecation notice after tests complete.
