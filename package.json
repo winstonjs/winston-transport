@@ -30,5 +30,8 @@
     "nyc": "^11.6.0",
     "winston-compat": "0.1.0",
     "@types/node": "^9.6.1"
+  },
+  "engines": {
+    "node": ">= 6.4.0"
   }
 }
