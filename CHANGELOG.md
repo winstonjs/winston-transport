@@ -1,5 +1,15 @@
 # CHANGELOG
 
+### 3.2.0 (2018/04/22)
+
+- [#13] Add silent support to LegacyTransportStream. Fixes [#8].
+- [#14] Ensure that if a Transport-specific format is provided it is invoked on each chunk before passing it to `.log`. Fixes [#12]. 
+- [#11] Revice `d.ts`
+- Add `.travis.yml`.
+- Documentation updates:
+  - [#5] Update deprecated link.
+  - [#7] Correct `this` reference in `README.md` by using an arrow function.
+
 ### 3.1.0 (2018/04/06)
 
 - [#10] Add `silent` option to `TransportStream`. Still needs to be implemented
