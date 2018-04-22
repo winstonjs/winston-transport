@@ -48,7 +48,7 @@ util.inherits(LegacyTransportStream, TransportStream);
  * Writes the info object to our transport instance.
  */
 LegacyTransportStream.prototype._write = function (info, enc, callback) {
-  if (info.exception === true && !this.handleExceptions) {
+  if (this.silent || (info.exception === true && !this.handleExceptions)) {
     return callback(null);
   }
 
@@ -70,6 +70,10 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
  */
 LegacyTransportStream.prototype._writev = function (chunks, callback) {
   const infos = chunks.filter(this._accept, this);
+  if (!infos.length) {
+    return callback(null);
+  }
+
   for (var i = 0; i < infos.length; i++) {
     this.transport.log(infos[i].chunk[LEVEL], infos[i].chunk.message, infos[i].chunk, this._nop);
     infos[i].callback();
