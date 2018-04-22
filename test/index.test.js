@@ -163,7 +163,33 @@ describe('TransportStream', function () {
       transport.uncork();
     });
 
-    it('invokes .logv with all valid chunks when necessary in streams plumbing', function () {
+    it('ensures a format is applied to each info when no .logv is defined', function (done) {
+      const expected = infosFor({ count: 10, levels: testOrder });
+      const transport = new TransportStream({
+        format: format.json(),
+        log: logFor(10 * testOrder.length, function (err, infos) {
+          assume(infos.length).equals(expected.length);
+          infos.forEach((info, i) => {
+            assume(info[MESSAGE]).equals(JSON.stringify(expected[i]));
+          });
+
+          done();
+        })
+      });
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = function () {
+        throw new Error('TransportStream.prototype._write should never be called.');
+      };
+
+      transport.cork();
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+    });
+
+    it('invokes .logv with all valid chunks when necessary in streams plumbing', function (done) {
       const expected = infosFor({ count: 50, levels: testOrder });
       const transport = new TransportStream({
         level: 'info',
@@ -173,6 +199,7 @@ describe('TransportStream', function () {
         logv: function (chunks, callback) {
           assume(chunks.length).equals(250);
           callback();
+          done();
         }
       });
 

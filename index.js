@@ -98,17 +98,29 @@ TransportStream.prototype._write = function (info, enc, callback) {
  * after performing any necessary filtering.
  */
 TransportStream.prototype._writev = function (chunks, callback) {
-  const infos = chunks.filter(this._accept, this);
-  if (!infos.length) {
-    return callback(null);
-  }
-
   if (this.logv) {
+    const infos = chunks.filter(this._accept, this);
+    if (!infos.length) {
+      return callback(null);
+    }
+
+    // Remark (indexzero): from a performance perspective if Transport
+    // implementers do choose to implement logv should we make it their
+    // responsibility to invoke their format?
     return this.logv(infos, callback);
   }
 
-  for (var i = 0; i < infos.length; i++) {
-    this.log(infos[i].chunk, infos[i].callback);
+  for (var i = 0; i < chunks.length; i++) {
+    if (this._accept(chunks[i])) {
+      if (this.format) {
+        this.log(
+          this.format.transform(Object.assign({}, chunks[i].chunk), this.format.options),
+          chunks[i].callback
+        );
+      } else {
+        this.log(chunks[i].chunk, chunks[i].callback);
+      }
+    }
   }
 
   return callback(null);
