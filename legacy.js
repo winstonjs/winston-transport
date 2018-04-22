@@ -69,14 +69,10 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
  * after performing any necessary filtering.
  */
 LegacyTransportStream.prototype._writev = function (chunks, callback) {
-  const infos = chunks.filter(this._accept, this);
-  if (!infos.length) {
-    return callback(null);
-  }
-
-  for (var i = 0; i < infos.length; i++) {
-    this.transport.log(infos[i].chunk[LEVEL], infos[i].chunk.message, infos[i].chunk, this._nop);
-    infos[i].callback();
+  for (var i = 0; i < chunks.length; i++) {
+    if (this._accept(chunks[i])) {
+      this.transport.log(chunks[i].chunk[LEVEL], chunks[i].chunk.message, chunks[i].chunk, chunks[i].callback);
+    }
   }
 
   return callback(null);
