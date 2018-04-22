@@ -71,7 +71,8 @@ LegacyTransportStream.prototype._write = function (info, enc, callback) {
 LegacyTransportStream.prototype._writev = function (chunks, callback) {
   for (var i = 0; i < chunks.length; i++) {
     if (this._accept(chunks[i])) {
-      this.transport.log(chunks[i].chunk[LEVEL], chunks[i].chunk.message, chunks[i].chunk, chunks[i].callback);
+      this.transport.log(chunks[i].chunk[LEVEL], chunks[i].chunk.message, chunks[i].chunk, this._nop);
+      chunks[i].callback();
     }
   }
 
