@@ -8,24 +8,28 @@
 import * as stream from 'stream';
 import * as logform from 'logform';
 
-interface TransportStreamOptions {
-  level?: string;
-  format?: logform.Format;
-  handleExceptions?: boolean;
-  log?: (info: any, next: () => void) => any;
-  logv?: (info: any, next: () => void) => any;
-  close?: () => void;
+declare namespace TransportStream {
+  interface TransportStreamOptions {
+    format?: logform.Format;
+    level?: string;
+    handleExceptions?: boolean;
+
+    log?(info: any, next: () => void): any;
+    logv?(info: any, next: () => void): any;
+    close?(): void;
+  }
 }
 
 declare class TransportStream extends stream.Writable {
-  format?: logform.Format;
-  level?: string;
-  handleExceptions?: boolean;
-  log?: (info: any, next: () => void) => any;
-  logv?: (info: any, next: () => void) => any;
-  close?: () => void;
+  public format?: logform.Format;
+  public level?: string;
+  public handleExceptions?: boolean;
 
-  constructor(opts: TransportStreamOptions);
-  constructor();
+  constructor(opts?: TransportStream.TransportStreamOptions);
 
+  public log?(info: any, next: () => void): any;
+  public logv?(info: any, next: () => void): any;
+  public close?(): void;
 }
+
+export = TransportStream;
