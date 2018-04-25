@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 3.2.1 (2018/04/25)
+
+- [#16] Reorder in TS defs: namespace must come after class in order for delcaration merging to work as expected.
+
 ### 3.2.0 (2018/04/22)
 
 - [#13] Add silent support to LegacyTransportStream. Fixes [#8].
