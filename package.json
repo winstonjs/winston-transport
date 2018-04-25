@@ -4,6 +4,8 @@
   "version": "3.2.0",
   "main": "index.js",
   "scripts": {
+    "lint": "populist config/*.js index.js",
+    "pretest": "npm run lint",
     "test": "nyc mocha test/*.test.js",
     "report": "nyc report --reporter=lcov"
   },
