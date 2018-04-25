@@ -157,8 +157,9 @@ TransportStream.prototype._accept = function (write) {
 
 /**
  * _nop is short for "No operation"
- * @return {Boolean} Intentionally false.
+ * @returns {Boolean} Intentionally false.
  */
 TransportStream.prototype._nop = function () {
+  // eslint-disable-next-line no-undefined
   return void undefined;
 };
