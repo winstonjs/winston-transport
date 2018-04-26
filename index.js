@@ -163,9 +163,10 @@ module.exports = class TransportStream extends Writable {
 
   /**
    * _nop is short for "No operation"
-   * @return {Boolean} Intentionally false.
+   * @returns {Boolean} Intentionally false.
    */
   _nop() {
+    // eslint-disable-next-line no-undefined
     return void undefined;
   }
 }
