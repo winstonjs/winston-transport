@@ -1,3 +1,5 @@
+'use strict';
+
 //
 // Order of Levels used in these tests.
 // Remark (indexzero): is abstracting this into a helper
@@ -17,7 +19,7 @@ const testOrder = exports.testOrder = [
 //
 // Actual `testLevels` in the format expected by `winston`.
 //
-exports.testLevels = testOrder.reduce(function (acc, level, i) {
+exports.testLevels = testOrder.reduce((acc, level, i) => {
   acc[level] = i;
   return acc;
 }, {});
