@@ -1,7 +1,7 @@
 'use strict';
 
 const { Writable } = require('stream');
-const LEVEL = Symbol.for('level');
+const { LEVEL } = require('triple-beam');
 
 module.exports = class TransportStream extends Writable {
   /**

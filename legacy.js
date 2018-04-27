@@ -1,7 +1,7 @@
 'use strict';
 
 const TransportStream = require('./');
-const LEVEL = Symbol.for('level');
+const { LEVEL } = require('triple-beam');
 
 module.exports = class LegacyTransportStream extends TransportStream {
   /**
