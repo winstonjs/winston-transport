@@ -95,6 +95,7 @@ module.exports = class TransportStream extends Writable {
    * instance after performing any necessary filtering.
    * @param {mixed} chunks - TODO: add params description.
    * @param {function} callback - TODO: add params description.
+   * @returns {mixed} - TODO: add returns description.
    * @private
    */
   _writev(chunks, callback) {
@@ -169,4 +170,4 @@ module.exports = class TransportStream extends Writable {
     // eslint-disable-next-line no-undefined
     return void undefined;
   }
-}
+};

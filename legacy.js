@@ -65,6 +65,7 @@ module.exports = class LegacyTransportStream extends TransportStream {
    * instance after performing any necessary filtering.
    * @param {mixed} chunks - TODO: add params description.
    * @param {function} callback - TODO: add params description.
+   * @returns {mixed} - TODO: add returns description.
    * @private
    */
   _writev(chunks, callback) {
@@ -89,11 +90,12 @@ module.exports = class LegacyTransportStream extends TransportStream {
    * @returns {undefined}
    */
   _deprecated() {
+    // eslint-disable-next-line no-console
     console.error([
       `${this.transport.name} is a legacy winston transport. Consider upgrading: `,
       '- Upgrade docs: https://github.com/winstonjs/winston/blob/master/UPGRADE-3.0.md'
     ].join('\n'));
-  };
+  }
 
   /**
    * Clean up error handling state on the legacy transport associated
