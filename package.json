@@ -24,6 +24,9 @@
     "url": "https://github.com/winstonjs/winston-transport/issues"
   },
   "homepage": "https://github.com/winstonjs/winston-transport#readme",
+  "dependencies": {
+    "triple-beam": "^1.2.0"
+  },
   "devDependencies": {
     "@types/node": "^9.6.1",
     "abstract-winston-transport": ">= 0.3.0",

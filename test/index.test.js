@@ -14,8 +14,7 @@ const {
   toWriteReq
 } = require('abstract-winston-transport/utils');
 
-const LEVEL = Symbol.for('level');
-const MESSAGE = Symbol.for('message');
+const { LEVEL, MESSAGE } = require('triple-beam');
 
 describe('TransportStream', () => {
   it('should have the appropriate methods defined', () => {
