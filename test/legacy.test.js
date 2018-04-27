@@ -8,7 +8,7 @@ const Parent = require('./fixtures/parent');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
 const { infosFor, logFor, levelAndMessage } = require('abstract-winston-transport/utils');
-const LEVEL = Symbol.for('level');
+const { LEVEL } = require('triple-beam');
 
 //
 // Silence the deprecation notice for sanity in test output.
