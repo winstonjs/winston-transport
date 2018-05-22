@@ -66,6 +66,36 @@ describe('TransportStream', () => {
       expected.forEach(transport.write.bind(transport));
     });
 
+    it('should not log when no info object is provided', done => {
+      const expected = testOrder.map(levelAndMessage).map((info, i) => {
+        if (testOrder.length > (i + 1)) {
+          info.private = true;
+        }
+
+        return info;
+      });
+      const transport = new TransportStream({
+        format: format(info => {
+          if (info.private) {
+            return false;
+          }
+
+          return info;
+        })(),
+        log: logFor(1, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
+          assume(infos.length).equals(1);
+          assume(infos.pop()).deep.equals(expected.pop());
+          done();
+        })
+      });
+
+      expected.forEach(transport.write.bind(transport));
+    });
+
     it('should only log messages BELOW the level priority', done => {
       const expected = testOrder.map(levelAndMessage);
       const transport = new TransportStream({
@@ -188,6 +218,46 @@ describe('TransportStream', () => {
       expected.forEach(transport.write.bind(transport));
       transport.uncork();
     });
+
+    it('should not log when no info object is provided in streams plumbing', done => {
+      const expected = testOrder.map(levelAndMessage).map((info, i) => {
+        if (testOrder.length > (i + 1)) {
+          info.private = true;
+        }
+
+        return info;
+      });
+      const transport = new TransportStream({
+        format: format(info => {
+          if (info.private) {
+            return false;
+          }
+
+          return info;
+        })(),
+        log: logFor(1, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
+          assume(infos.length).equals(1);
+          assume(infos.pop()).deep.equals(expected.pop());
+          done();
+        })
+      });
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = () => {
+        throw new Error('TransportStream.prototype._write should never be called.');
+      };
+
+      transport.cork();
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+    });
+
 
     it('ensures a format is applied to each info when no .logv is defined', done => {
       const expected = infosFor({ count: 10, levels: testOrder });
