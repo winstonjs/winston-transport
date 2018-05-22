@@ -77,14 +77,13 @@ module.exports = class TransportStream extends Writable {
     // Remark: This has to be handled in the base transport now because we
     // cannot conditionally write to our pipe targets as stream.
     if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
-      if (this.format) {
-        return this.log(
-          this.format.transform(Object.assign({}, info), this.format.options),
-          callback
-        );
-      }
+      info = this.format
+        ? this.format.transform(Object.assign({}, info), this.format.options)
+        : info;
 
-      return this.log(info, callback);
+      if (info) {
+        return this.log(info, callback);
+      }
     }
 
     return callback(null);
@@ -113,16 +112,15 @@ module.exports = class TransportStream extends Writable {
 
     for (let i = 0; i < chunks.length; i++) {
       if (this._accept(chunks[i])) {
-        if (this.format) {
-          this.log(
-            this.format.transform(
-              Object.assign({}, chunks[i].chunk),
-              this.format.options
-            ),
-            chunks[i].callback
-          );
-        } else {
-          this.log(chunks[i].chunk, chunks[i].callback);
+        const info = this.format
+          ? this.format.transform(
+            Object.assign({}, chunks[i].chunk),
+            this.format.options
+          )
+          : chunks[i].chunk;
+
+        if (info) {
+          this.log(info, chunks[i].callback);
         }
       }
     }
