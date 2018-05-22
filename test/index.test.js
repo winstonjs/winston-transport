@@ -5,7 +5,6 @@ const { format } = require('logform');
 const stream = require('stream');
 const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
-const SimpleTransport = require('./fixtures/simple-transport');
 const { testLevels, testOrder } = require('./fixtures');
 const {
   infosFor,
@@ -17,21 +16,22 @@ const {
 
 const { LEVEL, MESSAGE } = require('triple-beam');
 
-describe('TransportStream', function () {
-  it('should have the appropriate methods defined', function () {
+describe('TransportStream', () => {
+  it('should have the appropriate methods defined', () => {
     const transport = new TransportStream();
     assume(transport).instanceof(stream.Writable);
     assume(transport._write).is.a('function');
+    // eslint-disable-next-line no-undefined
     assume(transport.log).equals(undefined);
   });
 
-  it('should accept a custom log function invoked on _write', function () {
+  it('should accept a custom log function invoked on _write', () => {
     const log = logFor(1);
     const transport = new TransportStream({ log });
     assume(transport.log).equals(log);
   });
 
-  it('should invoke a custom log function on _write', function (done) {
+  it('should invoke a custom log function on _write', done => {
     const info = {
       [LEVEL]: 'test',
       level: 'test',
@@ -39,7 +39,7 @@ describe('TransportStream', function () {
     };
 
     const transport = new TransportStream({
-      log: function (actual) {
+      log(actual) {
         assume(actual).equals(info);
         done();
       }
@@ -48,11 +48,15 @@ describe('TransportStream', function () {
     transport.write(info);
   });
 
-  describe('_write(info, enc, callback)', function () {
-    it('should log to any level when { level: undefined }', function (done) {
+  describe('_write(info, enc, callback)', () => {
+    it('should log to any level when { level: undefined }', done => {
       const expected = testOrder.map(levelAndMessage);
       const transport = new TransportStream({
-        log: logFor(testOrder.length, function (err, infos) {
+        log: logFor(testOrder.length, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
           assume(infos.length).equals(expected.length);
           assume(infos).deep.equals(expected);
           done();
@@ -62,11 +66,15 @@ describe('TransportStream', function () {
       expected.forEach(transport.write.bind(transport));
     });
 
-    it('should only log messages BELOW the level priority', function (done) {
+    it('should only log messages BELOW the level priority', done => {
       const expected = testOrder.map(levelAndMessage);
       const transport = new TransportStream({
         level: 'info',
-        log: logFor(5, function (err, infos) {
+        log: logFor(5, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
           assume(infos.length).equals(5);
           assume(infos).deep.equals(expected.slice(0, 5));
           done();
@@ -77,19 +85,19 @@ describe('TransportStream', function () {
       expected.forEach(transport.write.bind(transport));
     });
 
-    it('{ level } should be ignored when { handleExceptions: true }', function () {
-      const expected = testOrder.map(levelAndMessage)
-        .map(function (info) {
-          info.exception = true;
-          return info;
-        });
+    it('{ level } should be ignored when { handleExceptions: true }', () => {
+      const expected = testOrder.map(levelAndMessage).map(info => {
+        info.exception = true;
+        return info;
+      });
 
       const transport = new TransportStream({
         level: 'info',
-        log: logFor(testOrder.length, function (err, infos) {
+        log: logFor(testOrder.length, (err, infos) => {
+          // eslint-disable-next-line no-undefined
+          assume(err).equals(undefined);
           assume(infos.length).equals(expected.length);
           assume(infos).deep.equals(expected);
-          done();
         })
       });
 
@@ -97,15 +105,22 @@ describe('TransportStream', function () {
       expected.forEach(transport.write.bind(transport));
     });
 
-    describe('when { exception: true } in info', function () {
-      it('should not invoke log when { handleExceptions: false }', function (done) {
-        const expected = [
-          { exception: true, [LEVEL]: 'error', level: 'error', message: 'Test exception handling' },
-          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
-        ];
+    describe('when { exception: true } in info', () => {
+      it('should not invoke log when { handleExceptions: false }', done => {
+        const expected = [{
+          exception: true,
+          [LEVEL]: 'error',
+          level: 'error',
+          message: 'Test exception handling'
+        }, {
+          [LEVEL]: 'test',
+          level: 'test',
+          message: 'Testing ... 1 2 3.'
+        }];
 
         const transport = new TransportStream({
-          log: function (info) {
+          log(info) {
+            // eslint-disable-next-line no-undefined
             assume(info.exception).equals(undefined);
             done();
           }
@@ -114,20 +129,25 @@ describe('TransportStream', function () {
         expected.forEach(transport.write.bind(transport));
       });
 
-      it('should invoke log when { handleExceptions: true }', function (done) {
+      it('should invoke log when { handleExceptions: true }', done => {
         const actual = [];
-        const expected = [
-          { exception: true, [LEVEL]: 'error', level: 'error', message: 'Test exception handling' },
-          { [LEVEL]: 'test', level: 'test', message: 'Testing ... 1 2 3.' }
-        ];
+        const expected = [{
+          exception: true, [LEVEL]: 'error',
+          level: 'error',
+          message: 'Test exception handling'
+        }, {
+          [LEVEL]: 'test',
+          level: 'test',
+          message: 'Testing ... 1 2 3.'
+        }];
 
         const transport = new TransportStream({
           handleExceptions: true,
-          log: function (info, next) {
+          log(info, next) {
             actual.push(info);
             if (actual.length === expected.length) {
               assume(actual).deep.equals(expected);
-              done();
+              return done();
             }
 
             next();
@@ -139,11 +159,18 @@ describe('TransportStream', function () {
     });
   });
 
-  describe('_writev(chunks, callback)', function () {
-    it('invokes .log() for each of the valid chunks when necessary in streams plumbing', function (done) {
-      const expected = infosFor({ count: 50, levels: testOrder });
+  describe('_writev(chunks, callback)', () => {
+    it('invokes .log() for each of the valid chunks when necessary in streams plumbing', done => {
+      const expected = infosFor({
+        count: 50,
+        levels: testOrder
+      });
       const transport = new TransportStream({
-        log: logFor(50 * testOrder.length, function (err, infos) {
+        log: logFor(50 * testOrder.length, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
           assume(infos.length).equals(expected.length);
           assume(infos).deep.equals(expected);
           done();
@@ -153,7 +180,7 @@ describe('TransportStream', function () {
       //
       // Make the standard _write throw to ensure that _writev is called.
       //
-      transport._write = function () {
+      transport._write = () => {
         throw new Error('TransportStream.prototype._write should never be called.');
       };
 
@@ -162,11 +189,15 @@ describe('TransportStream', function () {
       transport.uncork();
     });
 
-    it('ensures a format is applied to each info when no .logv is defined', function (done) {
+    it('ensures a format is applied to each info when no .logv is defined', done => {
       const expected = infosFor({ count: 10, levels: testOrder });
       const transport = new TransportStream({
         format: format.json(),
-        log: logFor(10 * testOrder.length, function (err, infos) {
+        log: logFor(10 * testOrder.length, (err, infos) => {
+          if (err) {
+            return done(err);
+          }
+
           assume(infos.length).equals(expected.length);
           infos.forEach((info, i) => {
             assume(info[MESSAGE]).equals(JSON.stringify(expected[i]));
@@ -179,7 +210,7 @@ describe('TransportStream', function () {
       //
       // Make the standard _write throw to ensure that _writev is called.
       //
-      transport._write = function () {
+      transport._write = () => {
         throw new Error('TransportStream.prototype._write should never be called.');
       };
 
@@ -188,16 +219,19 @@ describe('TransportStream', function () {
       transport.uncork();
     });
 
-    it('invokes .logv with all valid chunks when necessary in streams plumbing', function (done) {
-      const expected = infosFor({ count: 50, levels: testOrder });
+    it('invokes .logv with all valid chunks when necessary in streams plumbing', done => {
+      const expected = infosFor({
+        count: 50,
+        levels: testOrder
+      });
       const transport = new TransportStream({
         level: 'info',
-        log: function () {
+        log() {
           throw new Error('.log() should never be called');
         },
-        logv: function (chunks, callback) {
+        logv(chunks, callback) {
           assume(chunks.length).equals(250);
-          callback();
+          callback(); // eslint-disable-line callback-return
           done();
         }
       });
@@ -205,7 +239,7 @@ describe('TransportStream', function () {
       //
       // Make the standard _write throw to ensure that _writev is called.
       //
-      transport._write = function () {
+      transport._write = () => {
         throw new Error('TransportStream.prototype._write should never be called.');
       };
 
@@ -216,19 +250,18 @@ describe('TransportStream', function () {
     });
   });
 
-  describe('parent (i.e. "logger") ["pipe", "unpipe"]', function () {
-    it('should define { level, levels } on "pipe"', function (done) {
-      var parent = new Parent({
+  describe('parent (i.e. "logger") ["pipe", "unpipe"]', () => {
+    it('should define { level, levels } on "pipe"', done => {
+      const parent = new Parent({
         level: 'info',
         levels: testLevels
       });
-
-      var transport = new TransportStream({
-        log: function () {}
+      const transport = new TransportStream({
+        log() {}
       });
 
       parent.pipe(transport);
-      setImmediate(function () {
+      setImmediate(() => {
         assume(transport.level).equals('info');
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
@@ -236,19 +269,18 @@ describe('TransportStream', function () {
       });
     });
 
-    it('should not overwrite existing { level } on "pipe"', function (done) {
-      var parent = new Parent({
+    it('should not overwrite existing { level } on "pipe"', done => {
+      const parent = new Parent({
         level: 'info',
         levels: testLevels
       });
-
-      var transport = new TransportStream({
+      const transport = new TransportStream({
         level: 'error',
-        log: function () {}
+        log() {}
       });
 
       parent.pipe(transport);
-      setImmediate(function () {
+      setImmediate(() => {
         assume(transport.level).equals('error');
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
@@ -256,59 +288,57 @@ describe('TransportStream', function () {
       });
     });
 
-    it('should unset parent on "unpipe"', function (done) {
-      var parent = new Parent({
+    it('should unset parent on "unpipe"', done => {
+      const parent = new Parent({
         level: 'info',
         levels: testLevels
       });
-
-      var transport = new TransportStream({
+      const transport = new TransportStream({
         level: 'error',
-        log: function () {}
+        log() {}
       });
 
       //
-      // Trigger "pipe" first so that transport.parent is set
+      // Trigger "pipe" first so that transport.parent is set.
       //
       parent.pipe(transport);
-      setImmediate(function () {
+      setImmediate(() => {
         assume(transport.parent).equals(parent);
 
         //
-        // Now verify that after "unpipe" it is set to "null"
+        // Now verify that after "unpipe" it is set to 'null'.
         //
         parent.unpipe(transport);
-        setImmediate(function () {
+        setImmediate(() => {
           assume(transport.parent).equals(null);
           done();
         });
       });
     });
 
-    it('should invoke a close method on "unpipe"', function (done) {
-      var parent = new Parent({
+    it('should invoke a close method on "unpipe"', done => {
+      const parent = new Parent({
         level: 'info',
         levels: testLevels
       });
-
-      var transport = new TransportStream({
-        log: function () {}
+      const transport = new TransportStream({
+        log() {}
       });
 
       //
       // Test will only successfully complete when `close`
-      // is invoked.
+      // is invoked
       //
-      transport.close = function () {
+      transport.close = () => {
         assume(transport.parent).equals(null);
         done();
       };
 
       //
-      // Trigger "pipe" first so that transport.parent is set
+      // Trigger "pipe" first so that transport.parent is set.
       //
       parent.pipe(transport);
-      setImmediate(function () {
+      setImmediate(() => {
         assume(transport.parent).equals(parent);
         parent.unpipe(transport);
       });
@@ -316,16 +346,17 @@ describe('TransportStream', function () {
   });
 
   describe('_accept(info)', function () {
-    it('should filter only log messages BELOW the level priority', function () {
+    it('should filter only log messages BELOW the level priority', () => {
       const expected = testOrder
         .map(levelAndMessage)
         .map(toWriteReq);
 
-      const transport = new TransportStream({ level: 'info' });
+      const transport = new TransportStream({
+        level: 'info'
+      });
       transport.levels = testLevels;
-
       const filtered = expected.filter(transport._accept, transport)
-        .map(function (write) { return write.chunk.level });
+        .map(write => write.chunk.level);
 
       assume(filtered).deep.equals([
         'error',
@@ -336,7 +367,7 @@ describe('TransportStream', function () {
       ]);
     });
 
-    it('should filter out { exception: true } when { handleExceptions: false }', function () {
+    it('should filter out { exception: true } when { handleExceptions: false }', () => {
       const expected = testOrder
         .map(toException)
         .map(toWriteReq);
@@ -345,16 +376,14 @@ describe('TransportStream', function () {
         handleExceptions: false,
         level: 'info'
       });
-
       transport.levels = testLevels;
-
       const filtered = expected.filter(transport._accept, transport)
-        .map(function (info) { return info.level });
+        .map(info => info.level);
 
       assume(filtered).deep.equals([]);
     });
 
-    it('should include ALL { exception: true } when { handleExceptions: true }', function () {
+    it('should include ALL { exception: true } when { handleExceptions: true }', () => {
       const expected = testOrder
         .map(toException)
         .map(toWriteReq);
@@ -363,26 +392,25 @@ describe('TransportStream', function () {
         handleExceptions: true,
         level: 'info'
       });
-
       transport.levels = testLevels;
-
       const filtered = expected.filter(transport._accept, transport)
-        .map(function (write) { return write.chunk.level });
+        .map(write => write.chunk.level);
 
       assume(filtered).deep.equals(testOrder);
     });
   });
 
   describe('{ format }', function () {
-    it('logs the output of the provided format', function (done) {
-      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+    it('logs the output of the provided format', done => {
+      const expected = {
+        [LEVEL]: 'info',
+        level: 'info',
+        message: 'there will be json'
+      };
       const transport = new TransportStream({
         format: format.json(),
-        log: function (info, next) {
-          assume(info[MESSAGE]).equals(
-            JSON.stringify(expected)
-          );
-
+        log(info) {
+          assume(info[MESSAGE]).equals(JSON.stringify(expected));
           done();
         }
       });
@@ -390,11 +418,15 @@ describe('TransportStream', function () {
       transport.write(expected);
     });
 
-    it('treats the original object immutable', function (done) {
-      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+    it('treats the original object immutable', done => {
+      const expected = {
+        [LEVEL]: 'info',
+        level: 'info',
+        message: 'there will be json'
+      };
       const transport = new TransportStream({
         format: format.json(),
-        log: function (info, next) {
+        log(info) {
           assume(info).not.equals(expected);
           done();
         }
@@ -404,28 +436,35 @@ describe('TransportStream', function () {
     });
   });
 
-  describe('{ silent }', function () {
+  describe('{ silent }', () => {
     const silentTransport = new TransportStream({
       silent: true,
       format: format.json(),
-      log: function (info, next) {
+      log() {
         assume(false).true('.log() was called improperly');
-        done();
       }
     });
 
-    it('{ silent: true } ._write() never calls `.log`', function (done) {
-      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+    it('{ silent: true } ._write() never calls `.log`', done => {
+      const expected = {
+        [LEVEL]: 'info',
+        level: 'info',
+        message: 'there will be json'
+      };
 
       silentTransport.write(expected);
       setImmediate(() => done());
     });
 
-    it('{ silent: true } ._writev() never calls `.log`', function (done) {
-      const expected = { [LEVEL]: 'info', level: 'info', message: 'there will be json' };
+    it('{ silent: true } ._writev() never calls `.log`', done => {
+      const expected = {
+        [LEVEL]: 'info',
+        level: 'info',
+        message: 'there will be json'
+      };
 
       silentTransport.cork();
-      for (var i = 0; i < 15; i++) {
+      for (let i = 0; i < 15; i++) {
         silentTransport.write(expected);
       }
 
@@ -433,8 +472,10 @@ describe('TransportStream', function () {
       setImmediate(() => done());
     });
 
-    it('{ silent: true } ensures ._accept(write) always returns false', function () {
-      const accepted = silentTransport._accept({ chunk: {} });
+    it('{ silent: true } ensures ._accept(write) always returns false', () => {
+      const accepted = silentTransport._accept({
+        chunk: {}
+      });
       assume(accepted).false();
     });
   });
