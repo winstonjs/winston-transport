@@ -1,5 +1,13 @@
 # CHANGELOG
 
+### 3.3.0 (2018/05/24)
+
+- [#21] Do not log when there is no info object.
+- [#20] Add silent options to typings.
+- [#19] Refactor test fixtures to use es6-classes.
+- [#18] Use triple-beam for info object constants.
+- [#17] Add linting and Node v10 to the travis build of the project.
+
 ### 3.2.1 (2018/04/25)
 
 - [#16] Reorder in TS defs: namespace must come after class in order for delcaration merging to work as expected.

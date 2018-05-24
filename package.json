@@ -1,7 +1,7 @@
 {
   "name": "winston-transport",
   "description": "Base stream implementations for winston@3 and up.",
-  "version": "3.2.1",
+  "version": "3.3.0",
   "main": "index.js",
   "scripts": {
     "lint": "populist config/*.js index.js",
