@@ -1,6 +1,28 @@
 # CHANGELOG
 
+### 4.0.0 (2018/05/24)
+
+- **BREAKING** Update transports to use ES6 classes. Creation of
+`TransportStream` and `LegacyTransportStream` now requires the `new` keyword.
+
+**No longer works**
+``` js
+const Transport = require('winston-transport');
+const transport = Transport({
+  log: (info, callback) => { /* log something */ }
+});
+```
+
+**Do this instead**
+``` js
+const Transport = require('winston-transport');
+const transport = new Transport({
+  log: (info, callback) => { /* log something */ }
+});
+```
+
 ### 3.3.0 (2018/05/24)
+**Unpublished:** overlooked that 26f816e introduced a breaking change.
 
 - [#21] Do not log when there is no info object.
 - [#20] Add silent options to typings.
