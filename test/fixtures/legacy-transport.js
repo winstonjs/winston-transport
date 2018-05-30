@@ -9,7 +9,7 @@ module.exports = class LegacyTransport extends Transport {
    * Constructor function for the LegacyTransport which we use for testing
    * purposes. It breaks all the established rules and conventions for testing
    * edge cases. You SHOULD NOT use this as an example for how to write a
-  * custom `winston` Transport.
+   * custom `winston` Transport.
    * @param {Object} opts - Configuration for this instance
    */
   constructor(opts = {}) {
@@ -22,9 +22,7 @@ module.exports = class LegacyTransport extends Transport {
     // `winston` these levels will always inherit from the Logger we are piped
     // to.
     this.levels = opts.levels;
-    this.stream = opts.stream || {
-      write() {}
-    };
+    this.stream = opts.stream || { write() {} };
     this.streams = opts.streams;
   }
 

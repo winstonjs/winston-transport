@@ -2,7 +2,7 @@
 
 const TransportStream = require('../../');
 
-module.epxorts = class SimpleTransport extends TransportStream {
+module.exports = class SimpleTransport extends TransportStream {
   /**
    * !!! HERE BE DRAGONS !!!
    *
@@ -12,7 +12,7 @@ module.epxorts = class SimpleTransport extends TransportStream {
    * custom `winston` Transport.
    * @param {Object} opts = Configuration for this instance
    */
-  constructor(opts) {
+  constructor(opts = {}) {
     super(opts);
 
     //
