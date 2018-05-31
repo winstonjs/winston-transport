@@ -1,5 +1,9 @@
 # CHANGELOG
 
+### 4.1.0 (2018/05/31)
+
+- [#23] Revert to prototypal-based syntax for backwards compatibility.
+
 ### 4.0.0 (2018/05/24)
 
 - **BREAKING** Update transports to use ES6 classes. Creation of
