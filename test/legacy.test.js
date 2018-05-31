@@ -1,7 +1,7 @@
 'use strict';
 
 const assume = require('assume');
-const stream = require('stream');
+const Writable = require('readable-stream/writable');
 const LegacyTransportStream = require('../legacy');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
@@ -35,7 +35,7 @@ describe('LegacyTransportStream', () => {
   });
 
   it('should have the appropriate methods defined', () => {
-    assume(transport).instanceof(stream.Writable);
+    assume(transport).instanceof(Writable);
     assume(transport._write).is.a('function');
     // eslint-disable-next-line no-undefined
     assume(transport.log).equals(undefined);
