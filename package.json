@@ -28,9 +28,9 @@
     "triple-beam": "^1.2.0"
   },
   "devDependencies": {
-    "@types/node": "^9.6.1",
+    "@types/node": "^10.1.4",
     "abstract-winston-transport": ">= 0.3.0",
-    "assume": "^1.4.1",
+    "assume": "^2.0.1",
     "eslint-config-populist": "^4.1.0",
     "logform": "^1.4.0",
     "mocha": "^5.0.5",
