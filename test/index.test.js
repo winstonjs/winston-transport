@@ -2,7 +2,7 @@
 
 const assume = require('assume');
 const { format } = require('logform');
-const stream = require('stream');
+const Writable = require('readable-stream/writable');
 const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
 const { testLevels, testOrder } = require('./fixtures');
@@ -19,7 +19,7 @@ const { LEVEL, MESSAGE } = require('triple-beam');
 describe('TransportStream', () => {
   it('should have the appropriate methods defined', () => {
     const transport = new TransportStream();
-    assume(transport).instanceof(stream.Writable);
+    assume(transport).instanceof(Writable);
     assume(transport._write).is.a('function');
     // eslint-disable-next-line no-undefined
     assume(transport.log).equals(undefined);
