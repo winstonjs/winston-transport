@@ -511,6 +511,33 @@ describe('TransportStream', () => {
 
       transport.write(expected);
     });
+
+    it('continues to write after a format throws', done => {
+      const transport = new TransportStream({
+        format: format.printf((info) => {
+          // Set a trap.
+          if (info.message === 'ENDOR') {
+            throw new Error('ITS A TRAP!');
+          }
+
+          return info.message;
+        }),
+        log(info, callback) {
+          callback();
+          assume(info.level).equals('info');
+          assume(info.message).equals('safe');
+          done();
+        }
+      });
+
+      try {
+        transport.write({ level: 'info', message: 'ENDOR' });
+      } catch (ex) {
+        assume(ex.message).equals('ITS A TRAP!');
+      }
+
+      transport.write({ level: 'info', message: 'safe' });
+    });
   });
 
   describe('{ silent }', () => {
