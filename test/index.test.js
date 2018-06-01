@@ -76,10 +76,7 @@ describe('TransportStream', () => {
       });
       const transport = new TransportStream({
         format: format(info => {
-          if (info.private) {
-            return false;
-          }
-
+          if (info.private) return false;
           return info;
         })(),
         log: logFor(1, (err, infos) => {
@@ -227,6 +224,7 @@ describe('TransportStream', () => {
 
         return info;
       });
+
       const transport = new TransportStream({
         format: format(info => {
           if (info.private) {
@@ -326,6 +324,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         log() {}
       });
@@ -344,6 +343,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         level: 'error',
         log() {}
@@ -363,6 +363,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         level: 'error',
         log() {}
@@ -391,6 +392,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         log() {}
       });
@@ -424,6 +426,7 @@ describe('TransportStream', () => {
       const transport = new TransportStream({
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(write => write.chunk.level);
@@ -446,6 +449,7 @@ describe('TransportStream', () => {
         handleExceptions: false,
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(info => info.level);
@@ -462,6 +466,7 @@ describe('TransportStream', () => {
         handleExceptions: true,
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(write => write.chunk.level);
@@ -477,6 +482,7 @@ describe('TransportStream', () => {
         level: 'info',
         message: 'there will be json'
       };
+
       const transport = new TransportStream({
         format: format.json(),
         log(info) {
@@ -494,6 +500,7 @@ describe('TransportStream', () => {
         level: 'info',
         message: 'there will be json'
       };
+
       const transport = new TransportStream({
         format: format.json(),
         log(info) {
@@ -543,9 +550,7 @@ describe('TransportStream', () => {
     });
 
     it('{ silent: true } ensures ._accept(write) always returns false', () => {
-      const accepted = silentTransport._accept({
-        chunk: {}
-      });
+      const accepted = silentTransport._accept({ chunk: {} });
       assume(accepted).false();
     });
   });
