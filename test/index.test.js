@@ -513,7 +513,7 @@ describe('TransportStream', () => {
       transport.write(expected);
     });
 
-    it('continues to write after a format throws', done => {
+    it('_write continues to write after a format throws', done => {
       const transport = new TransportStream({
         format: format.printf((info) => {
           // Set a trap.
@@ -533,6 +533,44 @@ describe('TransportStream', () => {
 
       try {
         transport.write({ level: 'info', message: 'ENDOR' });
+      } catch (ex) {
+        assume(ex.message).equals('ITS A TRAP!');
+      }
+
+      transport.write({ level: 'info', message: 'safe' });
+    });
+
+    it('_writev continues to write after a format throws', done => {
+      const transport = new TransportStream({
+        format: format.printf((info) => {
+          // Set a trap.
+          if (info.message === 'ENDOR') {
+            throw new Error('ITS A TRAP!');
+          }
+
+          return info.message;
+        }),
+        log(info, callback) {
+          assume(info.level).is.a('string');
+          assume(info.message).is.a('string');
+          callback();
+
+          if (info.message === 'safe') {
+            done();
+          }
+        }
+      });
+
+      const infos = infosFor({
+        count: 10,
+        levels: testOrder
+      });
+
+      try {
+        transport.cork();
+        infos.forEach(info => transport.write(info));
+        transport.write({ level: 'info', message: 'ENDOR' });
+        transport.uncork();
       } catch (ex) {
         assume(ex.message).equals('ITS A TRAP!');
       }

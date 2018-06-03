@@ -154,7 +154,11 @@ TransportStream.prototype._writev = function _writev(chunks, callback) {
     if (errState || !transformed) {
       // eslint-disable-next-line callback-return
       chunks[i].callback();
-      if (errState) throw errState;
+      if (errState) {
+        // eslint-disable-next-line callback-return
+        callback(null);
+        throw errState;
+      }
     } else {
       this.log(transformed, chunks[i].callback);
     }
