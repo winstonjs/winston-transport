@@ -133,7 +133,8 @@ TransportStream.prototype._writev = function _writev(chunks, callback) {
     if (!this._accept(chunks[i])) continue;
 
     if (chunks[i].chunk && !this.format) {
-      return this.log(chunks[i].chunk, chunks[i].callback);
+      this.log(chunks[i].chunk, chunks[i].callback);
+      continue;
     }
 
     let errState;

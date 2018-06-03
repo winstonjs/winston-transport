@@ -192,6 +192,7 @@ describe('TransportStream', () => {
         count: 50,
         levels: testOrder
       });
+
       const transport = new TransportStream({
         log: logFor(50 * testOrder.length, (err, infos) => {
           if (err) {
