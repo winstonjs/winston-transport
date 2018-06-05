@@ -332,9 +332,10 @@ describe('TransportStream', () => {
 
       parent.pipe(transport);
       setImmediate(() => {
-        assume(transport.level).equals('info');
+        assume(transport.level).equals(undefined);
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
+        assume(transport.parent.level).equals('info');
         done();
       });
     });

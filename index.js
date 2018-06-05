@@ -23,15 +23,9 @@ const TransportStream = module.exports = function TransportStream(options = {}) 
   this.handleExceptions = options.handleExceptions;
   this.silent = options.silent;
 
-  if (options.log) {
-    this.log = options.log;
-  }
-  if (options.logv) {
-    this.logv = options.logv;
-  }
-  if (options.close) {
-    this.close = options.close;
-  }
+  if (options.log) this.log = options.log;
+  if (options.logv) this.logv = options.logv;
+  if (options.close) this.close = options.close;
 
   // Get the levels from the source we are piped from.
   this.once('pipe', logger => {
@@ -40,7 +34,6 @@ const TransportStream = module.exports = function TransportStream(options = {}) 
     // the `winston.Container` code in which `container.add` takes
     // a fully realized set of options with pre-constructed TransportStreams.
     this.levels = logger.levels;
-    this.level = this.level || logger.level;
     this.parent = logger;
   });
 
@@ -78,8 +71,12 @@ TransportStream.prototype._write = function _write(info, enc, callback) {
   }
 
   // Remark: This has to be handled in the base transport now because we
-  // cannot conditionally write to our pipe targets as stream.
-  if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
+  // cannot conditionally write to our pipe targets as stream. We always
+  // prefer any explicit level set on the Transport itself falling back to
+  // any level set on the parent.
+  const level = this.level || (this.parent && this.parent.level);
+
+  if (!level || this.levels[level] >= this.levels[info[LEVEL]]) {
     if (info && !this.format) {
       return this.log(info, callback);
     }
@@ -182,11 +179,15 @@ TransportStream.prototype._accept = function _accept(write) {
     return false;
   }
 
+  // We always prefer any explicit level set on the Transport itself
+  // falling back to any level set on the parent.
+  const level = this.level || (this.parent && this.parent.level);
+
   // Immediately check the average case: log level filtering.
   if (
     info.exception === true ||
-    !this.level ||
-    this.levels[this.level] >= this.levels[info[LEVEL]]
+    !level ||
+    this.levels[level] >= this.levels[info[LEVEL]]
   ) {
     // Ensure the info object is valid based on `{ exception }`:
     // 1. { handleExceptions: true }: all `info` objects are valid
