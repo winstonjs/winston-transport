@@ -76,10 +76,7 @@ describe('TransportStream', () => {
       });
       const transport = new TransportStream({
         format: format(info => {
-          if (info.private) {
-            return false;
-          }
-
+          if (info.private) return false;
           return info;
         })(),
         log: logFor(1, (err, infos) => {
@@ -195,6 +192,7 @@ describe('TransportStream', () => {
         count: 50,
         levels: testOrder
       });
+
       const transport = new TransportStream({
         log: logFor(50 * testOrder.length, (err, infos) => {
           if (err) {
@@ -227,6 +225,7 @@ describe('TransportStream', () => {
 
         return info;
       });
+
       const transport = new TransportStream({
         format: format(info => {
           if (info.private) {
@@ -326,6 +325,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         log() {}
       });
@@ -344,6 +344,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         level: 'error',
         log() {}
@@ -363,6 +364,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         level: 'error',
         log() {}
@@ -391,6 +393,7 @@ describe('TransportStream', () => {
         level: 'info',
         levels: testLevels
       });
+
       const transport = new TransportStream({
         log() {}
       });
@@ -424,6 +427,7 @@ describe('TransportStream', () => {
       const transport = new TransportStream({
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(write => write.chunk.level);
@@ -446,6 +450,7 @@ describe('TransportStream', () => {
         handleExceptions: false,
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(info => info.level);
@@ -462,6 +467,7 @@ describe('TransportStream', () => {
         handleExceptions: true,
         level: 'info'
       });
+
       transport.levels = testLevels;
       const filtered = expected.filter(transport._accept, transport)
         .map(write => write.chunk.level);
@@ -477,6 +483,7 @@ describe('TransportStream', () => {
         level: 'info',
         message: 'there will be json'
       };
+
       const transport = new TransportStream({
         format: format.json(),
         log(info) {
@@ -494,6 +501,7 @@ describe('TransportStream', () => {
         level: 'info',
         message: 'there will be json'
       };
+
       const transport = new TransportStream({
         format: format.json(),
         log(info) {
@@ -503,6 +511,71 @@ describe('TransportStream', () => {
       });
 
       transport.write(expected);
+    });
+
+    it('_write continues to write after a format throws', done => {
+      const transport = new TransportStream({
+        format: format.printf((info) => {
+          // Set a trap.
+          if (info.message === 'ENDOR') {
+            throw new Error('ITS A TRAP!');
+          }
+
+          return info.message;
+        }),
+        log(info, callback) {
+          callback();
+          assume(info.level).equals('info');
+          assume(info.message).equals('safe');
+          done();
+        }
+      });
+
+      try {
+        transport.write({ level: 'info', message: 'ENDOR' });
+      } catch (ex) {
+        assume(ex.message).equals('ITS A TRAP!');
+      }
+
+      transport.write({ level: 'info', message: 'safe' });
+    });
+
+    it('_writev continues to write after a format throws', done => {
+      const transport = new TransportStream({
+        format: format.printf((info) => {
+          // Set a trap.
+          if (info.message === 'ENDOR') {
+            throw new Error('ITS A TRAP!');
+          }
+
+          return info.message;
+        }),
+        log(info, callback) {
+          assume(info.level).is.a('string');
+          assume(info.message).is.a('string');
+          callback();
+
+          if (info.message === 'safe') {
+            done();
+          }
+        }
+      });
+
+      const infos = infosFor({
+        count: 10,
+        levels: testOrder
+      });
+
+      try {
+        transport.cork();
+        infos.forEach(info => transport.write(info));
+        transport.write({ level: 'info', message: 'ENDOR' });
+        transport.uncork();
+      } catch (ex) {
+        assume(ex.message).equals('ITS A TRAP!');
+      }
+
+      transport.write({ level: 'info', message: 'safe' });
     });
   });
 
@@ -543,9 +616,7 @@ describe('TransportStream', () => {
     });
 
     it('{ silent: true } ensures ._accept(write) always returns false', () => {
-      const accepted = silentTransport._accept({
-        chunk: {}
-      });
+      const accepted = silentTransport._accept({ chunk: {} });
       assume(accepted).false();
     });
   });
