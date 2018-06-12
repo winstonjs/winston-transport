@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 4.2.0 (2018/06/11)
+
+- [#26] Do not use copy-by-value for `this.level`.
+- [#25] Wrap calls to `format.transform` with try / catch.
+- [#24] Use `readable-stream` package to get the _final semantics across all versions of Node.
+
 ### 4.1.0 (2018/05/31)
 
 - [#23] Revert to prototypal-based syntax for backwards compatibility.
