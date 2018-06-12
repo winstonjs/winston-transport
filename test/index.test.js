@@ -13,8 +13,17 @@ const {
   toException,
   toWriteReq
 } = require('abstract-winston-transport/utils');
-
 const { LEVEL, MESSAGE } = require('triple-beam');
+
+/*
+ * Returns the provided `info` object with the appropriate LEVEL,
+ * and MESSAGE symbols defined.
+ */
+function infoify(info) {
+  info[LEVEL] = info.level;
+  info[MESSAGE] = info.message;
+  return info;
+};
 
 describe('TransportStream', () => {
   it('should have the appropriate methods defined', () => {
@@ -327,15 +336,22 @@ describe('TransportStream', () => {
       });
 
       const transport = new TransportStream({
-        log() {}
+        log(info, next) {
+          assume(info.level).equals('info');
+          assume(info.message).equals('ok sure');
+          next();
+          done();
+        }
       });
 
       parent.pipe(transport);
       setImmediate(() => {
-        assume(transport.level).equals('info');
+        assume(transport.level).equals(undefined);
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
-        done();
+        assume(transport.parent.level).equals('info');
+        transport.write(infoify({ level: 'parrot', message: 'never logged' }));
+        transport.write(infoify({ level: 'info', message: 'ok sure' }));
       });
     });
 
@@ -347,7 +363,12 @@ describe('TransportStream', () => {
 
       const transport = new TransportStream({
         level: 'error',
-        log() {}
+        log(info, next) {
+          assume(info.level).equals('error');
+          assume(info.message).equals('ok sure');
+          next();
+          done();
+        }
       });
 
       parent.pipe(transport);
@@ -355,7 +376,34 @@ describe('TransportStream', () => {
         assume(transport.level).equals('error');
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
-        done();
+        transport.write(infoify({ level: 'info', message: 'never logged' }));
+        transport.write(infoify({ level: 'error', message: 'ok sure' }));
+      });
+    });
+
+    it('should respond to changes in parent logging level', done => {
+      const parent = new Parent({
+        level: 'error',
+        levels: testLevels
+      });
+
+      const transport = new TransportStream({
+        log(info, next) {
+          assume(info.level).equals('parrot');
+          assume(info.message).equals('eventually log this');
+          next();
+          done();
+        }
+      });
+
+      parent.pipe(transport);
+      setImmediate(() => {
+        assume(transport.levels).equals(testLevels);
+        assume(transport.parent).equals(parent);
+        transport.write(infoify({ level: 'info', message: 'never logged' }));
+
+        parent.level = 'parrot';
+        transport.write(infoify({ level: 'parrot', message: 'eventually log this' }));
       });
     });
 
