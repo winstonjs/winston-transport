@@ -1,6 +1,6 @@
 'use strict';
 
-const TransportStream = require('../../');
+const TransportStream = require('../../src');
 
 module.exports = class SimpleTransport extends TransportStream {
   /**
