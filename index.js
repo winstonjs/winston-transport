@@ -16,7 +16,7 @@ const { LEVEL } = require('triple-beam');
  * @param {Function} options.close - Called on "unpipe" from parent.
  */
 const TransportStream = module.exports = function TransportStream(options = {}) {
-  Writable.call(this, { objectMode: true });
+  Writable.call(this, { objectMode: true, highWaterMark: options.highWaterMark });
 
   this.format = options.format;
   this.level = options.level;
