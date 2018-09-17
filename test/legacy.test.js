@@ -2,7 +2,7 @@
 
 const assume = require('assume');
 const Writable = require('readable-stream/writable');
-const LegacyTransportStream = require('../src/legacy');
+const LegacyTransportStream = require('../legacy');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
 const { infosFor, logFor, levelAndMessage } = require('abstract-winston-transport/utils');

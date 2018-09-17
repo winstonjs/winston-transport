@@ -1,7 +1,7 @@
 'use strict';
 
 const util = require('util');
-const TransportStream = require('../../src');
+const TransportStream = require('../../');
 
 /**
  * !!! HERE BE DRAGONS !!!

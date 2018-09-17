@@ -3,7 +3,7 @@
 const assume = require('assume');
 const { format } = require('logform');
 const Writable = require('readable-stream/writable');
-const TransportStream = require('../src');
+const TransportStream = require('../');
 const Parent = require('./fixtures/parent');
 const { testLevels, testOrder } = require('./fixtures');
 const {
