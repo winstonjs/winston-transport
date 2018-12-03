@@ -625,6 +625,40 @@ describe('TransportStream', () => {
 
       transport.write({ level: 'info', message: 'safe' });
     });
+
+    it('logs an Error properly', done => {
+      const expected = new Error('there will be error json');
+      expected[LEVEL] = 'error';
+      expected.level = 'error';
+
+      const transport = new TransportStream({
+        format: format.printf((info) => `${info.level}: ${info.stack}`),
+        log(info) {
+          assume(info[MESSAGE]).equals(`${expected.level}: ${expected.stack}`);
+          done();
+        }
+      });
+
+      transport.write(expected);
+    });
+
+    it('logs an Error properly when corked', done => {
+      const expected = new Error('there will be error json');
+      expected[LEVEL] = 'error';
+      expected.level = 'error';
+
+      const transport = new TransportStream({
+        format: format.printf((info) => `${info.level}: ${info.stack}`),
+        log(info) {
+          assume(info[MESSAGE]).equals(`${expected.level}: ${expected.stack}`);
+          done();
+        }
+      });
+
+      transport.cork();
+      transport.write(expected);
+      transport.uncork();
+    });
   });
 
   describe('{ silent }', () => {
