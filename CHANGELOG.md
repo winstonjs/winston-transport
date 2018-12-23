@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 4.3.0 (2018/12/23)
+
+- [#30] Precompile before publishing to `npm`.
+- [#32] Add new option to increase default `highWaterMark` value.
+
 ### 4.2.0 (2018/06/11)
 
 - [#26] Do not use copy-by-value for `this.level`.
