@@ -21,6 +21,7 @@ const TransportStream = module.exports = function TransportStream(options = {}) 
   this.format = options.format;
   this.level = options.level;
   this.handleExceptions = options.handleExceptions;
+  this.handleRejections = options.handleRejections;
   this.silent = options.silent;
 
   if (options.log) this.log = options.log;
