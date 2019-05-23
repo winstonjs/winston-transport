@@ -209,3 +209,7 @@ TransportStream.prototype._nop = function _nop() {
   // eslint-disable-next-line no-undefined
   return void undefined;
 };
+
+
+// Expose legacy stream
+module.exports.LegacyTransportStream = require('./legacy');
