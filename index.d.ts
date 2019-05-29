@@ -13,6 +13,7 @@ declare class TransportStream extends stream.Writable {
   public level?: string;
   public silent?: boolean;
   public handleExceptions?: boolean;
+  public handleRejections?: boolean;
 
   constructor(opts?: TransportStream.TransportStreamOptions);
 
@@ -27,6 +28,7 @@ declare namespace TransportStream {
     level?: string;
     silent?: boolean;
     handleExceptions?: boolean;
+    handleRejections?: boolean;
 
     log?(info: any, next: () => void): any;
     logv?(info: any, next: () => void): any;
