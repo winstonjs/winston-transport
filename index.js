@@ -1,7 +1,7 @@
 'use strict';
 
 const util = require('util');
-const Writable = require('readable-stream/writable');
+const Writable = require('readable-stream/lib/_stream_writable.js');
 const { LEVEL } = require('triple-beam');
 
 /**

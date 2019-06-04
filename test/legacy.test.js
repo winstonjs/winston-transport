@@ -1,7 +1,7 @@
 'use strict';
 
 const assume = require('assume');
-const Writable = require('readable-stream/writable');
+const Writable = require('readable-stream/lib/_stream_writable.js');
 const LegacyTransportStream = require('../legacy');
 const LegacyTransport = require('./fixtures/legacy-transport');
 const { testLevels, testOrder } = require('./fixtures');
