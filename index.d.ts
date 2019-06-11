@@ -23,6 +23,7 @@ declare class TransportStream extends stream.Writable {
 
 declare namespace TransportStream {
   interface TransportStreamOptions {
+    name?: string;
     format?: logform.Format;
     level?: string;
     silent?: boolean;
