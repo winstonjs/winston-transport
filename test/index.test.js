@@ -121,7 +121,7 @@ describe('TransportStream', () => {
       expected.forEach(transport.write.bind(transport));
     });
 
-    it('{ level } should be ignored when { handleExceptions: true }', () => {
+    it('{ level } should be ignored when { handleExceptions: true }', done => {
       const expected = testOrder.map(levelAndMessage).map(info => {
         info.exception = true;
         return info;
@@ -129,11 +129,15 @@ describe('TransportStream', () => {
 
       const transport = new TransportStream({
         level: 'info',
+        handleExceptions: true,
         log: logFor(testOrder.length, (err, infos) => {
-          // eslint-disable-next-line no-undefined
-          assume(err).equals(undefined);
+          if (err) {
+            return done(err);
+          }
+
           assume(infos.length).equals(expected.length);
           assume(infos).deep.equals(expected);
+          done();
         })
       });
 

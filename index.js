@@ -77,7 +77,7 @@ TransportStream.prototype._write = function _write(info, enc, callback) {
   // any level set on the parent.
   const level = this.level || (this.parent && this.parent.level);
 
-  if (!level || this.levels[level] >= this.levels[info[LEVEL]]) {
+  if (info.exception === true || !level || this.levels[level] >= this.levels[info[LEVEL]]) {
     if (info && !this.format) {
       return this.log(info, callback);
     }

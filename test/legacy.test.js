@@ -127,21 +127,38 @@ describe('LegacyTransportStream', () => {
       expected.forEach(transport.write.bind(transport));
     });
 
-    it('{ level } should be ignored when { handleExceptions: true }', () => {
+    it('{ level } should be ignored when { handleExceptions: true }', done => {
       const expected = testOrder.map(levelAndMessage).map(info => {
         info.exception = true;
         return info;
       });
       transport = new LegacyTransportStream({
         transport: legacy,
-        level: 'info'
+        level: 'info',
+        handleExceptions: true
       });
 
       legacy.on('logged', logFor(testOrder.length, (err, infos) => {
-        // eslint-disable-next-line no-undefined
-        assume(err).equals(undefined);
+        if (err) {
+          return done(err);
+        }
+
         assume(infos.length).equals(expected.length);
-        assume(infos).deep.equals(expected);
+
+        // Adjust log level for comparison if required for comparison
+        let compExpected;
+        if (transport.exceptionsLevel) {
+          compExpected = expected.map(info => {
+            info.level = transport.exceptionsLevel;
+            return info;
+          });
+        }
+        else {
+          compExpected = expected;
+        }
+
+        assume(infos).deep.equals(compExpected);
+        done();
       }));
 
       transport.levels = testLevels;

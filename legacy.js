@@ -58,7 +58,7 @@ LegacyTransportStream.prototype._write = function _write(info, enc, callback) {
 
   // Remark: This has to be handled in the base transport now because we
   // cannot conditionally write to our pipe targets as stream.
-  if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
     this.transport.log(info[LEVEL], info.message, info, this._nop);
   }
 
