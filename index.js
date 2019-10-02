@@ -21,6 +21,7 @@ const TransportStream = module.exports = function TransportStream(options = {}) 
   this.format = options.format;
   this.level = options.level;
   this.handleExceptions = options.handleExceptions;
+  this.exceptionsLevel = options.exceptionsLevel;
   this.handleRejections = options.handleRejections;
   this.silent = options.silent;
 
@@ -71,6 +72,13 @@ TransportStream.prototype._write = function _write(info, enc, callback) {
     return callback(null);
   }
 
+  // Reset logging level if handling exception
+  if (info.exception === true && this.exceptionsLevel) {
+    // Clone info so that the logging level is only changed for this transport
+    info = cloneObj(info);
+    info.level = info[LEVEL] = this.exceptionsLevel;
+  }
+
   // Remark: This has to be handled in the base transport now because we
   // cannot conditionally write to our pipe targets as stream. We always
   // prefer any explicit level set on the Transport itself falling back to
@@ -115,6 +123,18 @@ TransportStream.prototype._write = function _write(info, enc, callback) {
  * @private
  */
 TransportStream.prototype._writev = function _writev(chunks, callback) {
+  // Clone chunks so any change made will apply to this transport only
+  chunks = cloneObjArray(chunks);
+
+  chunks.forEach((chunkEntry) => {
+    // Reset logging level of chunk (info) if handling exception
+    if (chunkEntry.chunk.exception === true && this.exceptionsLevel) {
+      // Clone info so that the logging level is only changed for this transport
+      chunkEntry.chunk = cloneObj(chunkEntry.chunk);
+      chunkEntry.chunk.level = chunkEntry.chunk[LEVEL] = this.exceptionsLevel;
+    }
+  });
+
   if (this.logv) {
     const infos = chunks.filter(this._accept, this);
     if (!infos.length) {
@@ -210,6 +230,27 @@ TransportStream.prototype._nop = function _nop() {
   return void undefined;
 };
 
+function cloneObj(obj) {
+  const clonedObj = {};
+
+  Object.getOwnPropertyNames(obj).forEach((propName) => {
+    Object.defineProperty(clonedObj, propName, Object.getOwnPropertyDescriptor(obj, propName));
+  });
+
+  Object.setPrototypeOf(clonedObj, Object.getPrototypeOf(obj));
+
+  return clonedObj;
+}
+
+function cloneObjArray(arr) {
+  if (typeof arr === 'object') {
+    if (Array.isArray(arr)) {
+      return arr.map(cloneObjArray);
+    }
+
+    return cloneObj(arr);
+  }
+}
 
 // Expose legacy stream
 module.exports.LegacyTransportStream = require('./legacy');

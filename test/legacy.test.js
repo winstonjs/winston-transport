@@ -215,6 +215,51 @@ describe('LegacyTransportStream', () => {
 
         expected.forEach(transport.write.bind(transport));
       });
+
+      it('should log specified level when { handleExceptions: true, exceptionsLevel: "exception_level" }', done => {
+        const actual = [];
+        const expected = [{
+          exception: true,
+          [LEVEL]: 'error',
+          level: 'error',
+          message: 'Test exception handling'
+        }, {
+          [LEVEL]: 'info',
+          level: 'info',
+          message: 'Testing ... 1 2 3.'
+        }];
+
+        transport = new LegacyTransportStream({
+          transport: legacy,
+          level: 'info',
+          handleExceptions: true,
+          exceptionsLevel: 'fatal'
+        });
+
+        legacy.on('logged', info => {
+          actual.push(info);
+
+          if (info.exception) {
+            assume(info.level).equals(transport.exceptionsLevel);
+          }
+          else {
+            assume(info).deep.equals(expected[actual.length - 1]);
+          }
+
+          if (actual.length === expected.length) {
+            return done();
+          }
+        });
+
+        transport.levels = {
+          'fatal': 0,
+          'error': 1,
+          'warn': 2,
+          'info': 3
+        };
+
+        expected.forEach(transport.write.bind(transport));
+      });
     });
   });
 
@@ -245,6 +290,67 @@ describe('LegacyTransportStream', () => {
       transport.cork();
       expected.forEach(transport.write.bind(transport));
       transport.uncork();
+    });
+
+    describe('when { exception: true } in info', () => {
+      it('should log specified level when { handleExceptions: true, exceptionsLevel: "exception_level" }', done => {
+        const actual = [];
+        const expected = [{
+          exception: true,
+          [LEVEL]: 'error',
+          level: 'error',
+          message: 'Test exception handling #1'
+        }, {
+          [LEVEL]: 'info',
+          level: 'info',
+          message: 'Testing ... 1 2 3.'
+        }, {
+          exception: true,
+          [LEVEL]: 'error',
+          level: 'error',
+          message: 'Test exception handling #2'
+        }];
+
+        transport = new LegacyTransportStream({
+          transport: legacy,
+          level: 'info',
+          handleExceptions: true,
+          exceptionsLevel: 'fatal'
+        });
+
+        legacy.on('logged', info => {
+          actual.push(info);
+
+          if (info.exception) {
+            assume(info.level).equals(transport.exceptionsLevel);
+          }
+          else {
+            assume(info).deep.equals(expected[actual.length - 1]);
+          }
+
+          if (actual.length === expected.length) {
+            return done();
+          }
+        });
+
+        transport.levels = {
+          'fatal': 0,
+          'error': 1,
+          'warn': 2,
+          'info': 3
+        };
+
+        //
+        // Make the standard _write throw to ensure that _writev is called.
+        //
+        transport._write = () => {
+          throw new Error('TransportStream.prototype._write should never be called.');
+        };
+
+        transport.cork();
+        expected.forEach(transport.write.bind(transport));
+        transport.uncork();
+      });
     });
   });
 
