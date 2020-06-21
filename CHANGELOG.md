@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 4.4.0 (2018/12/23)
+
+- [#41] Support handleRejections option.
+- [#42] Expose LegacyTransportStream from the base module.
+- Update dependencies.
+
 ### 4.3.0 (2018/12/23)
 
 - [#30] Precompile before publishing to `npm`.
