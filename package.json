@@ -1,7 +1,7 @@
 {
   "name": "winston-transport",
   "description": "Base stream implementations for winston@3 and up.",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "main": "index.js",
   "browser": "dist/index.js",
   "scripts": {
