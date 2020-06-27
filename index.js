@@ -127,11 +127,27 @@ TransportStream.prototype._writev = function _writev(chunks, callback) {
     return this.logv(infos, callback);
   }
 
+  let numLogCalls = 0;
+  let numCallbacksCalled = 0;
+  const wrapCallback = i => (...args) => {
+    setImmediate(() => {
+      chunks[i].callback(...args);
+
+      numCallbacksCalled += 1;
+
+      if (numCallbacksCalled === numLogCalls) {
+        return callback(null);
+      }
+    });
+  };
+
   for (let i = 0; i < chunks.length; i++) {
     if (!this._accept(chunks[i])) continue;
 
+    numLogCalls += 1;
+
     if (chunks[i].chunk && !this.format) {
-      this.log(chunks[i].chunk, chunks[i].callback);
+      this.log(chunks[i].chunk, wrapCallback(i));
       continue;
     }
 
@@ -151,18 +167,16 @@ TransportStream.prototype._writev = function _writev(chunks, callback) {
 
     if (errState || !transformed) {
       // eslint-disable-next-line callback-return
-      chunks[i].callback();
+      wrapCallback(i)();
       if (errState) {
         // eslint-disable-next-line callback-return
         callback(null);
         throw errState;
       }
     } else {
-      this.log(transformed, chunks[i].callback);
+      this.log(transformed, wrapCallback(i));
     }
   }
-
-  return callback(null);
 };
 
 /**
