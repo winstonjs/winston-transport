@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/winstonjs/winston-transport#readme",
   "dependencies": {
+    "logform": "^2.2.0",
     "readable-stream": "^3.4.0",
     "triple-beam": "^1.2.0"
   },
