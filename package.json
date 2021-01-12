@@ -39,7 +39,6 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "eslint-config-populist": "^4.2.0",
-    "logform": "^2.2.0",
     "mocha": "^8.0.1",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
