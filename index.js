@@ -18,6 +18,7 @@ const { LEVEL } = require('triple-beam');
 const TransportStream = module.exports = function TransportStream(options = {}) {
   Writable.call(this, { objectMode: true, highWaterMark: options.highWaterMark });
 
+  this.name = options.name;
   this.format = options.format;
   this.level = options.level;
   this.handleExceptions = options.handleExceptions;
