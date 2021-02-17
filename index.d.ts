@@ -9,6 +9,7 @@ import * as stream from 'stream';
 import * as logform from 'logform';
 
 declare class TransportStream extends stream.Writable {
+  public name?: string;
   public format?: logform.Format;
   public level?: string;
   public silent?: boolean;
@@ -24,6 +25,7 @@ declare class TransportStream extends stream.Writable {
 
 declare namespace TransportStream {
   interface TransportStreamOptions {
+    name?: string;
     format?: logform.Format;
     level?: string;
     silent?: boolean;
