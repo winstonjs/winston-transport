@@ -207,7 +207,7 @@ TransportStream.prototype._accept = function _accept(write) {
 function cloneObj(obj) {
   const clonedObj = {};
 
-  Object.getOwnPropertyNames(obj).forEach((propName) => {
+  Object.getOwnPropertyNames(obj).concat(Object.getOwnPropertySymbols(obj)).forEach((propName) => {
     Object.defineProperty(clonedObj, propName, Object.getOwnPropertyDescriptor(obj, propName));
   });
 
