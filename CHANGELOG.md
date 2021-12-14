@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### 4.4.1 (2021/12/14)
+
+- [#44] Add handleRejections to types.
+- [#60] Exclude unnecessary files from npm package
+- [#45] [#58] Update dependencies.
+
 ### 4.4.0 (2018/12/23)
 
 - [#41] Support handleRejections option.
