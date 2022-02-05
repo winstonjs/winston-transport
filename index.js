@@ -102,7 +102,7 @@ TransportStream.prototype._write = function _write(info, enc, callback) {
 
     return this.log(transformed, callback);
   }
-
+  this._writableState.sync = false;
   return callback(null);
 };
 
