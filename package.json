@@ -33,7 +33,7 @@
     "triple-beam": "^1.2.0"
   },
   "devDependencies": {
-    "@types/node": "^14.0.13",
+    "@types/node": "^17.0.15",
     "abstract-winston-transport": ">= 0.3.0",
     "assume": "^2.2.0",
     "babel-cli": "^6.26.0",
