@@ -1,6 +1,7 @@
 'use strict';
 
 const assume = require('assume');
+const deepEqual = require('deep-equal');
 const { format } = require('logform');
 const Writable = require('readable-stream/lib/_stream_writable.js');
 const TransportStream = require('../');
@@ -278,7 +279,7 @@ describe('TransportStream', () => {
 
           assume(infos.length).equals(expected.length);
           infos.forEach((info, i) => {
-            assume(info[MESSAGE]).equals(JSON.stringify(expected[i]));
+            assume(deepEqual(JSON.parse(info[MESSAGE]), expected[i]));
           });
 
           done();
