@@ -5,7 +5,7 @@
   "main": "index.js",
   "browser": "dist/index.js",
   "scripts": {
-    "lint": "populist config/*.js index.js",
+    "lint": "eslint test/*.js index.js --resolve-plugins-relative-to ./node_modules/@dabh/eslint-config-populist",
     "pretest": "npm run lint && npm run build",
     "test": "nyc mocha test/*.test.js",
     "report": "nyc report --reporter=lcov",
@@ -39,7 +39,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "deep-equal": "^2.0.0",
-    "eslint-config-populist": "^4.2.0",
+    "eslint": "^8.0.0",
+    "@dabh/eslint-config-populist": "^5.0.0",
     "mocha": "^8.0.1",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
