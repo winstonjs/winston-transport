@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 4.5.0 (2022/02/05)
+
+- [#81] Memory leak fix: do not wait for `process.nextTick` to clear callbacks
+- [#87, #82, #67] Update dependencies, CI config, and linter config
+
 ### 4.4.1 (2021/12/14)
 
 - [#44] Add handleRejections to types.
