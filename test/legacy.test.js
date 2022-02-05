@@ -44,6 +44,7 @@ describe('LegacyTransportStream', () => {
   it('should error with no transport', () => {
     assume(() => {
       transport = new LegacyTransportStream();
+      // eslint-disable-next-line no-undef
       assume(transport).instanceof(stream.Writable);
     }).throws(/Invalid transport, must be an object with a log method./);
   });
@@ -51,6 +52,7 @@ describe('LegacyTransportStream', () => {
   it('should error with invalid transport', () => {
     assume(() => {
       transport = new LegacyTransportStream();
+      // eslint-disable-next-line no-undef
       assume(transport).instanceof(stream.Writable);
     }).throws(/Invalid transport, must be an object with a log method./);
   });

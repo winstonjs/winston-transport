@@ -340,6 +340,7 @@ describe('TransportStream', () => {
         log(info, next) {
           assume(info.level).equals('info');
           assume(info.message).equals('ok sure');
+          // eslint-disable-next-line callback-return
           next();
           done();
         }
@@ -347,6 +348,7 @@ describe('TransportStream', () => {
 
       parent.pipe(transport);
       setImmediate(() => {
+        // eslint-disable-next-line no-undefined
         assume(transport.level).equals(undefined);
         assume(transport.levels).equals(testLevels);
         assume(transport.parent).equals(parent);
@@ -367,6 +369,7 @@ describe('TransportStream', () => {
         log(info, next) {
           assume(info.level).equals('error');
           assume(info.message).equals('ok sure');
+          // eslint-disable-next-line callback-return
           next();
           done();
         }
@@ -392,6 +395,7 @@ describe('TransportStream', () => {
         log(info, next) {
           assume(info.level).equals('parrot');
           assume(info.message).equals('eventually log this');
+          // eslint-disable-next-line callback-return
           next();
           done();
         }
@@ -573,6 +577,7 @@ describe('TransportStream', () => {
           return info.message;
         }),
         log(info, callback) {
+          // eslint-disable-next-line callback-return
           callback();
           assume(info.level).equals('info');
           assume(info.message).equals('safe');
@@ -602,9 +607,11 @@ describe('TransportStream', () => {
         log(info, callback) {
           assume(info.level).is.a('string');
           assume(info.message).is.a('string');
+          // eslint-disable-next-line callback-return
           callback();
 
           if (info.message === 'safe') {
+            // eslint-disable-next-line callback-return
             done();
           }
         }
@@ -665,7 +672,7 @@ describe('TransportStream', () => {
     });
 
     it('{ silent: true } ensures ._accept(write) always returns false', () => {
-      const accepted = silentTransport._accept({ chunk: {} });
+      const accepted = silentTransport._accept({ chunk: {}});
       assume(accepted).false();
     });
   });
