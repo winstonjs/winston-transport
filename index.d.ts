@@ -11,6 +11,7 @@ import * as logform from 'logform';
 declare class TransportStream extends stream.Writable {
   public format?: logform.Format;
   public level?: string;
+  public levelOnly?: boolean;
   public silent?: boolean;
   public handleExceptions?: boolean;
   public handleRejections?: boolean;
@@ -26,6 +27,7 @@ declare namespace TransportStream {
   interface TransportStreamOptions {
     format?: logform.Format;
     level?: string;
+    levelOnly?: boolean;
     silent?: boolean;
     handleExceptions?: boolean;
     handleRejections?: boolean;

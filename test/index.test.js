@@ -193,6 +193,26 @@ describe('TransportStream', () => {
 
         expected.forEach(transport.write.bind(transport));
       });
+
+      it('should only log messages with exact priority level when levelOnly=true', done => {
+        const allMessages = testOrder.map(levelAndMessage);
+        const expected = allMessages.filter((message) => message.level === 'info');
+        const transport = new TransportStream({
+          level: 'info',
+          levelOnly: true,
+          log: logFor(expected.length, (err, infos) => {
+            if (err) {
+              return done(err);
+            }
+            assume(infos.length).equals(expected.length);
+            assume(infos).deep.equals(expected.slice());
+            done();
+          })
+        });
+
+        transport.levels = testLevels;
+        allMessages.forEach(transport.write.bind(transport));
+      });
     });
   });
 
