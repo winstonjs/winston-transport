@@ -327,6 +327,62 @@ describe('TransportStream', () => {
       expected.forEach(transport.write.bind(transport));
       transport.uncork();
     });
+
+    it("invokes the callback only when each chunk has finished", done => {
+      const expected = infosFor({
+        count: 5,
+        levels: ["info"]
+      });
+
+      const individualCallbacks = [];
+      const transport = new TransportStream({
+        level: "info",
+        log(info, callback) {
+          individualCallbacks.push(callback);
+        }
+      });
+
+      //
+      // Make the standard _write throw to ensure that _writev is called.
+      //
+      transport._write = () => {
+        throw new Error(
+          "TransportStream.prototype._write should never be called."
+        );
+      };
+
+      // Wrap the standard _writev in a way to tell if the callback was called
+      let callbackCalled = false;
+      let individualCallbacksCalled = false;
+      const standardWriteV = transport._writev;
+      transport._writev = (chunks, callback) => {
+        standardWriteV.call(transport, chunks, () => {
+          assume(individualCallbacksCalled).equals(true);
+          callback();
+          callbackCalled = true;
+          done();
+        });
+      };
+
+      transport.cork();
+      transport.levels = testLevels;
+      expected.forEach(transport.write.bind(transport));
+      transport.uncork();
+
+      // Callback shouldn't be called yet, since the individual log callbacks
+      // haven't been called
+
+      setImmediate(() => {
+        assume(callbackCalled).equals(false);
+
+        // After each individual log is finished, only then should the stream
+        // should be finished
+        for (const callback of individualCallbacks) {
+          callback();
+        }
+        individualCallbacksCalled = true;
+      });
+    });
   });
 
   describe('parent (i.e. "logger") ["pipe", "unpipe"]', () => {
