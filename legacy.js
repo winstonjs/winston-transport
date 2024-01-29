@@ -21,6 +21,7 @@ const LegacyTransportStream = module.exports = function LegacyTransportStream(op
   this.transport = options.transport;
   this.level = this.level || options.transport.level;
   this.handleExceptions = this.handleExceptions || options.transport.handleExceptions;
+  this.exceptionsLevel = this.exceptionsLevel || options.transport.exceptionsLevel;
 
   // Display our deprecation notice.
   this._deprecated();
@@ -58,8 +59,13 @@ LegacyTransportStream.prototype._write = function _write(info, enc, callback) {
 
   // Remark: This has to be handled in the base transport now because we
   // cannot conditionally write to our pipe targets as stream.
-  if (!this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
-    this.transport.log(info[LEVEL], info.message, info, this._nop);
+  if (info.exception === true || !this.level || this.levels[this.level] >= this.levels[info[LEVEL]]) {
+    this.transport.log(
+        info.exception === true && this.exceptionsLevel ? this.exceptionsLevel : info[LEVEL],
+        info.message,
+        info,
+        this._nop
+    );
   }
 
   callback(null);
@@ -77,7 +83,7 @@ LegacyTransportStream.prototype._writev = function _writev(chunks, callback) {
   for (let i = 0; i < chunks.length; i++) {
     if (this._accept(chunks[i])) {
       this.transport.log(
-        chunks[i].chunk[LEVEL],
+        chunks[i].chunk.exception === true && this.exceptionsLevel ? this.exceptionsLevel : chunks[i].chunk[LEVEL],
         chunks[i].chunk.message,
         chunks[i].chunk,
         this._nop
