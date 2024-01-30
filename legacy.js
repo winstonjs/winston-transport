@@ -2,7 +2,7 @@
 
 const util = require('util');
 const { LEVEL } = require('triple-beam');
-const TransportStream = require('./');
+const TransportStream = require('./modern');
 
 /**
  * Constructor function for the LegacyTransportStream. This is an internal
