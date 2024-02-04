@@ -24,7 +24,7 @@ function infoify(info) {
   info[LEVEL] = info.level;
   info[MESSAGE] = info.message;
   return info;
-};
+}
 
 describe('TransportStream', () => {
   it('should have the appropriate methods defined', () => {
