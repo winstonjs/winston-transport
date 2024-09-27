@@ -105,7 +105,7 @@ describe('LegacyTransportStream', () => {
         done();
       }));
 
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     it('should only log messages BELOW the level priority', done => {
@@ -126,7 +126,7 @@ describe('LegacyTransportStream', () => {
       }));
 
       transport.levels = testLevels;
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     it('{ level } should be ignored when { handleExceptions: true }', () => {
@@ -147,7 +147,7 @@ describe('LegacyTransportStream', () => {
       }));
 
       transport.levels = testLevels;
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     describe('when { exception: true } in info', () => {
@@ -169,7 +169,7 @@ describe('LegacyTransportStream', () => {
           done();
         });
 
-        expected.forEach(transport.write.bind(transport));
+        expected.forEach(entry => transport.write.bind(transport)(entry));
       });
 
       it('should invoke log when { handleExceptions: true }', done => {
@@ -197,8 +197,7 @@ describe('LegacyTransportStream', () => {
             return done();
           }
         });
-
-        expected.forEach(transport.write.bind(transport));
+        expected.forEach(entry => transport.write.bind(transport)(entry));
       });
     });
   });
@@ -228,7 +227,7 @@ describe('LegacyTransportStream', () => {
       };
 
       transport.cork();
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
       transport.uncork();
     });
   });

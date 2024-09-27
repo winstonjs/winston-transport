@@ -73,7 +73,7 @@ describe('TransportStream', () => {
         })
       });
 
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     it('should not log when no info object is provided', done => {
@@ -100,7 +100,7 @@ describe('TransportStream', () => {
         })
       });
 
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     it('should only log messages BELOW the level priority', done => {
@@ -119,7 +119,7 @@ describe('TransportStream', () => {
       });
 
       transport.levels = testLevels;
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     it('{ level } should be ignored when { handleExceptions: true }', () => {
@@ -139,7 +139,7 @@ describe('TransportStream', () => {
       });
 
       transport.levels = testLevels;
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
     });
 
     describe('when { exception: true } in info', () => {
@@ -163,7 +163,7 @@ describe('TransportStream', () => {
           }
         });
 
-        expected.forEach(transport.write.bind(transport));
+        expected.forEach(entry => transport.write.bind(transport)(entry));
       });
 
       it('should invoke log when { handleExceptions: true }', done => {
@@ -190,8 +190,7 @@ describe('TransportStream', () => {
             next();
           }
         });
-
-        expected.forEach(transport.write.bind(transport));
+        expected.forEach(entry => transport.write.bind(transport)(entry));
       });
     });
   });
@@ -223,7 +222,7 @@ describe('TransportStream', () => {
       };
 
       transport.cork();
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
       transport.uncork();
     });
 
@@ -263,7 +262,7 @@ describe('TransportStream', () => {
       };
 
       transport.cork();
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
       transport.uncork();
     });
 
@@ -294,7 +293,7 @@ describe('TransportStream', () => {
       };
 
       transport.cork();
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
       transport.uncork();
     });
 
@@ -324,7 +323,7 @@ describe('TransportStream', () => {
 
       transport.cork();
       transport.levels = testLevels;
-      expected.forEach(transport.write.bind(transport));
+      expected.forEach(entry => transport.write.bind(transport)(entry));
       transport.uncork();
     });
   });
