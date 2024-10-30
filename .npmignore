@@ -1,4 +1,9 @@
+.nyc_output
 coverage
 test
+.babelrc
+.eslintrc
+.gitattributes
+.travis.yml
 tsconfig.json
 .github
