@@ -29,7 +29,7 @@
   "homepage": "https://github.com/winstonjs/winston-transport#readme",
   "dependencies": {
     "logform": "^2.7.0",
-    "readable-stream": "^4.5.2",
+    "readable-stream": "^3.6.2",
     "triple-beam": "^1.3.0"
   },
   "devDependencies": {
