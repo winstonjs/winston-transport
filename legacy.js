@@ -91,7 +91,7 @@ LegacyTransportStream.prototype._writev = function _writev(chunks, callback) {
 
 /**
  * Displays a deprecation notice. Defined as a function so it can be
- * overriden in tests.
+ * overridden in tests.
  * @returns {undefined}
  */
 LegacyTransportStream.prototype._deprecated = function _deprecated() {
